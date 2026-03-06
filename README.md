@@ -45,8 +45,10 @@ Preferably, use VS2022 or XCode.
     * Sprite sheet animation
     * Sprite font rendering
     * Hardware instancing
+  * Automatic Texture Mipmap Generation
   * 3D Model loading
   * 3D Scene setup
+  * Custom GPU-Friendly 3D Model Format
 
 ## Third-party libraries used:
 * [stb_image](https://github.com/nothings/stb)
