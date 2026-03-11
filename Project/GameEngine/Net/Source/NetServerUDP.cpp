@@ -4,7 +4,17 @@
 ======================================================*/
 #include "NetServerUDP.hpp"
 #include "BigError.hpp"
+#ifdef _WIN32
+#include <winsock2.h>
 #include <ws2tcpip.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <errno.h>
+#endif
 
 using namespace GameEngine;
 
@@ -17,7 +27,11 @@ void NetServerUDP::Initialize(uint16 port, strgv ip)
 
 void NetServerUDP::Release()
 {
+#if _WIN32
 	closesocket(mSocket);
+#else
+	close(mSocket);
+#endif
 }
 
 int NetServerUDP::Run()

@@ -15,7 +15,7 @@ namespace GameEngine
 	public:
 		void				Initialize(uint16 port, strgv ip);
 		int					Run();
-		ENetClientStatus	Status();
+		ENetClientStatusTCP	Status();
 
 	private:
 		int	TryConnecting();
@@ -25,7 +25,7 @@ namespace GameEngine
 		int Send(const char* buffer, int size, int flags = 0);
 
 	private:
-		ENetClientStatus mStatus;
+		ENetClientStatusTCP mStatus;
 	};
 }
 #endif

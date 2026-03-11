@@ -5,7 +5,17 @@
 #ifndef NETNODE_HPP_
 #define NETNODE_HPP_
 #include "SystemTypes.hpp"
-#include <WinSock2.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <errno.h>
+#endif
 
 namespace GameEngine
 {
@@ -17,7 +27,11 @@ namespace GameEngine
 		virtual int	 Run() = 0;
 
 	protected:
+#if _WIN32
 		SOCKET	mSocket;
+#else
+		int		mSocket;
+#endif
 		uint16	mPort;
 		strg	mIP;
 	};

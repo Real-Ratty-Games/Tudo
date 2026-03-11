@@ -4,8 +4,17 @@
 ======================================================*/
 #ifndef NETDATA_HPP_
 #define NETDATA_HPP_
-#include <WinSock2.h>
+#ifdef _WIN32
+#include <winsock2.h>
 #include <ws2tcpip.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <errno.h>
+#endif
 
 #define GAMEENGINE_NET_TCP_DISCONNECTED	0
 #define GAMEENGINE_NET_TCP_NOTHING		-1
@@ -15,7 +24,11 @@ namespace GameEngine
 {
 	struct NetClientDataTCP
 	{
+#if _WIN32
 		SOCKET	Socket;
+#else
+		int		Socket;
+#endif
 		uint16	Port;
 		strg	IP;
 	};
@@ -28,7 +41,7 @@ namespace GameEngine
 		socklen_t	SocketLen;
 	};
 
-	enum class ENetClientStatus
+	enum class ENetClientStatusTCP
 	{
 		READY,		// ready to connect
 		BUSY,		// already connected

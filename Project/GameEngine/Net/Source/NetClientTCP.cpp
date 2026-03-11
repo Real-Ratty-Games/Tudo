@@ -4,7 +4,17 @@
 ======================================================*/
 #include "NetClientTCP.hpp"
 #include "BigError.hpp"
+#ifdef _WIN32
+#include <winsock2.h>
 #include <ws2tcpip.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <errno.h>
+#endif
 
 using namespace GameEngine;
 
@@ -36,7 +46,7 @@ int NetClientTCP::TryConnecting()
 		int len = sizeof(err);
 		getsockopt(mSocket, SOL_SOCKET, SO_ERROR, (char*)&err, &len);
 		if (err == 0)
-			mStatus = ENetClientStatus::BUSY;
+			mStatus = ENetClientStatusTCP::BUSY;
 		else return err;
 	}
 	return GAMEENGINE_NET_TCP_DISCONNECTED;
@@ -46,23 +56,27 @@ int NetClientTCP::Run()
 {
 	switch (mStatus)
 	{
-	case ENetClientStatus::READY:
+	case ENetClientStatusTCP::READY:
 	{
 		return TryConnecting();
 	}break;
-	case ENetClientStatus::BUSY:
+	case ENetClientStatusTCP::BUSY:
 	{
 		const int code = ListenToServer();
 		if((code == GAMEENGINE_NET_TCP_DISCONNECTED) ||
+#if _WIN32
 			(code == GAMEENGINE_NET_TCP_NOTHING && WSAGetLastError() == WSAECONNRESET))
-			mStatus = ENetClientStatus::DEAD;
+#else
+			(code == GAMEENGINE_NET_TCP_NOTHING && errno == WSAECONNRESET))
+#endif
+			mStatus = ENetClientStatusTCP::DEAD;
 		return code;
 	}break;
 	}
 	return GAMEENGINE_NET_TCP_NOTHING;
 }
 
-ENetClientStatus NetClientTCP::Status()
+ENetClientStatusTCP NetClientTCP::Status()
 {
 	return mStatus;
 }
