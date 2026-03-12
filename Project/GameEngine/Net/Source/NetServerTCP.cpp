@@ -31,9 +31,9 @@ void NetServerTCP::Release()
 int NetServerTCP::Run()
 {
 	int code = Connect();
-	code = Listen();
+	Listen();
 	return code;
-} // ???
+}
 
 const std::vector<NetClientDataTCP>& NetServerTCP::Clients()
 {
@@ -65,7 +65,7 @@ int NetServerTCP::Connect()
 	return GAMEENGINE_NET_NOTHING;
 }
 
-int NetServerTCP::Listen()
+void NetServerTCP::Listen()
 {
 	int code = 0;
 	std::erase_if(mClients, [&](auto& client)
@@ -79,7 +79,6 @@ int NetServerTCP::Listen()
 			if (remv) Disconnect(client);
 			return remv;
 		});
-	return code;
 }
 
 int NetServerTCP::Recv(const NetClientDataTCP& client, char* buffer, int size, int flags)

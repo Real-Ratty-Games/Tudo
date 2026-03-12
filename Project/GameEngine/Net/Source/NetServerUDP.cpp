@@ -33,7 +33,7 @@ int NetServerUDP::Recv(NetClientDataUDP& client, char* buffer, int size, int fla
     int bytes = recvfrom(mSocket, buffer, size, flags, (NetSockaddr*)&clientAddr, &clientLen);
 
     if (bytes == GAMEENGINE_NET_SOCKET_INVALID)
-		return GAMEENGINE_NET_NOTHING; // return Network::GetError()
+		return GAMEENGINE_NET_NOTHING;
 
 	char ip[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &clientAddr.sin_addr, ip, sizeof(ip));

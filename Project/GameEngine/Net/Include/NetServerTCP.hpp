@@ -22,7 +22,7 @@ namespace GameEngine
 
 	private:
 		int Connect();
-		int Listen();
+		void Listen();
 		void Disconnect(NetClientDataTCP& client);
 
 	protected:

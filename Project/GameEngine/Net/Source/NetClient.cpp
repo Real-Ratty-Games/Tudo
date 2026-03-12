@@ -11,7 +11,7 @@ using namespace GameEngine;
 void NetClient::Initialize(uint16 port, strgv ip)
 {
     mPort    = port;
-    mIP        = ip;
+    mIP      = ip;
 
     if (mSocket == GAMEENGINE_NET_SOCKET_INVALID)
         throw BigError("Failed creating client socket: " + std::to_string(Network::GetError()));
