@@ -23,7 +23,7 @@ namespace GameEngine
 	private:
 		int Connect();
 		int Listen();
-		void Disconnect(const NetClientDataTCP& client);
+		void Disconnect(NetClientDataTCP& client);
 
 	protected:
 		int			Recv(const NetClientDataTCP& client, char* buffer, int size, int flags = 0);

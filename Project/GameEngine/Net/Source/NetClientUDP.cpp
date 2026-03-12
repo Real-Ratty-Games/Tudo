@@ -4,17 +4,6 @@
 ======================================================*/
 #include "NetClientUDP.hpp"
 #include "BigError.hpp"
-#ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <errno.h>
-#endif
 
 using namespace GameEngine;
 
@@ -33,18 +22,10 @@ int NetClientUDP::Run()
 
 int NetClientUDP::Recv(char* buffer, int size, int flags)
 {
-#if _WIN32
-	return recvfrom(mSocket, buffer, size, flags, (SOCKADDR*)&mService, &mServiceLen);
-#else
-    return recvfrom(mSocket, buffer, size, flags, (sockaddr*)&mService, &mServiceLen);
-#endif
+	return recvfrom(mSocket, buffer, size, flags, (NetSockaddr*)&mService, &mServiceLen);
 }
 
 int NetClientUDP::Send(const char* buffer, int size, int flags)
 {
-#if _WIN32
-    return sendto(mSocket, buffer, size, flags, (SOCKADDR*)&mService, mServiceLen);
-#else
-    return sendto(mSocket, buffer, size, flags, (sockaddr*)&mService, mServiceLen);
-#endif
+    return sendto(mSocket, buffer, size, flags, (NetSockaddr*)&mService, mServiceLen);
 }

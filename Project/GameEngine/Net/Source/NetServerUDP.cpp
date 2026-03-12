@@ -4,38 +4,20 @@
 ======================================================*/
 #include "NetServerUDP.hpp"
 #include "BigError.hpp"
-#ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <errno.h>
-#endif
+#include "Network.hpp"
 
 using namespace GameEngine;
 
 void NetServerUDP::Initialize(uint16 port, strgv ip)
 {
-#if _WIN32
-    mSocket = INVALID_SOCKET;
-#else
-	mSocket = -1;
-#endif
+    mSocket = GAMEENGINE_NET_SOCKET_INVALID;
 	mSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	NetServer::Initialize(port, ip);
 }
 
 void NetServerUDP::Release()
 {
-#if _WIN32
-	closesocket(mSocket);
-#else
-	close(mSocket);
-#endif
+    Network::CloseSocket(mSocket);
 }
 
 int NetServerUDP::Run()
@@ -48,18 +30,10 @@ int NetServerUDP::Recv(NetClientDataUDP& client, char* buffer, int size, int fla
 	sockaddr_in clientAddr;
 	socklen_t	clientLen = sizeof(clientAddr);
 
-#if _WIN32
-    int bytes = recvfrom(mSocket, buffer, size, flags, (SOCKADDR*)&clientAddr, &clientLen);
-#else
-    int bytes = recvfrom(mSocket, buffer, size, flags, (sockaddr*)&clientAddr, &clientLen);
-#endif
+    int bytes = recvfrom(mSocket, buffer, size, flags, (NetSockaddr*)&clientAddr, &clientLen);
 
-#if _WIN32
-    if (bytes == SOCKET_ERROR)
-#else
-	if (bytes == -1)
-#endif
-		return GAMEENGINE_NET_UDP_NOTHING; // return WSAGetLastError()
+    if (bytes == GAMEENGINE_NET_SOCKET_INVALID)
+		return GAMEENGINE_NET_UDP_NOTHING; // return Network::GetError()
 
 	char ip[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &clientAddr.sin_addr, ip, sizeof(ip));
@@ -76,9 +50,5 @@ int NetServerUDP::Recv(NetClientDataUDP& client, char* buffer, int size, int fla
 
 int NetServerUDP::Send(const NetClientDataUDP& client, const char* buffer, int size, int flags)
 {
-#if _WIN32
-    return sendto(mSocket, buffer, size, flags, (SOCKADDR*)&client.SocketAddr, client.SocketLen);
-#else
-    return sendto(mSocket, buffer, size, flags, (sockaddr*)&client.SocketAddr, client.SocketLen);
-#endif
+    return sendto(mSocket, buffer, size, flags, (NetSockaddr*)&client.SocketAddr, client.SocketLen);
 }

@@ -5,38 +5,19 @@
 #include "NetClientTCP.hpp"
 #include "BigError.hpp"
 #include "Network.hpp"
-#ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <errno.h>
-#endif
 
 using namespace GameEngine;
 
 void NetClientTCP::Initialize(uint16 port, strgv ip)
 {
-#if _WIN32
-    mSocket = INVALID_SOCKET;
-#else
-	mSocket = -1;
-#endif
+    mSocket = GAMEENGINE_NET_SOCKET_INVALID;
 	mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	NetClient::Initialize(port, ip);
 }
 
 int NetClientTCP::TryConnecting()
 {
-#if _WIN32
-    connect(mSocket, (SOCKADDR*)&mService, sizeof(mService));
-#else
-	connect(mSocket, (sockaddr*)&mService, sizeof(mService));
-#endif
+    connect(mSocket, (NetSockaddr*)&mService, sizeof(mService));
 
 	fd_set writeSet;
 	FD_ZERO(&writeSet);

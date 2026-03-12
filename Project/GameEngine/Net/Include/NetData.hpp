@@ -40,11 +40,7 @@ typedef sockaddr    NetSockaddr;
 
 	struct NetClientDataTCP
 	{
-#if _WIN32
-		SOCKET	Socket;
-#else
-		int		Socket;
-#endif
+        NetSocket	Socket;
 		uint16	Port;
 		strg	IP;
 	};

@@ -5,17 +5,7 @@
 #ifndef NETNODE_HPP_
 #define NETNODE_HPP_
 #include "SystemTypes.hpp"
-#ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <errno.h>
-#endif
+#include "NetData.hpp"
 
 namespace GameEngine
 {
