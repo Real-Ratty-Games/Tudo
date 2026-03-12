@@ -9,32 +9,34 @@
 #include <Input.hpp>
 
 #include <Network.hpp>
-#include <NetServerUDP.hpp>
-#include <NetClientUDP.hpp>
+#include <NetServerTCP.hpp>
+#include <NetClientTCP.hpp>
 
 using namespace MyGame;
 
-class MyServer : public NetServerUDP
+class MyServer : public NetServerTCP
 {
 protected:
-	int ListenToClient()
+	int ListenToClient(const NetClientDataTCP& client)
 	{
-		NetClientDataUDP client;
-
 		char buffer[13];
 		const int bytes = Recv(client, buffer, sizeof(buffer));
 
-		if (bytes != GAMEENGINE_NET_NOTHING)
+		if (bytes > 0)
 		{
 			buffer[bytes - 1] = '\0';
 			const strg header = "Message from Client: " + client.IP;
 			Window::ShowMessageBox(SDL_MESSAGEBOX_INFORMATION, header, buffer);
 		}
+
+		if (bytes == GAMEENGINE_NET_TCP_DISCONNECTED)
+			Window::ShowMessageBox(SDL_MESSAGEBOX_INFORMATION, "Server Message", "One of my bois disconnected!");
+
 		return bytes;
 	}
 };
 
-class MyClient : public NetClientUDP
+class MyClient : public NetClientTCP
 {
 public:
 	int ListenToServer()
@@ -45,7 +47,13 @@ public:
 			Send(buffer, strlen(buffer));
 		}
 
-		return GAMEENGINE_NET_NOTHING;
+		char buffer[13];
+		const int bytes = Recv(buffer, sizeof(buffer));
+
+		if (bytes == GAMEENGINE_NET_TCP_DISCONNECTED)
+			Window::ShowMessageBox(SDL_MESSAGEBOX_INFORMATION, "Client Message", "The big guy is gone!");
+
+		return bytes;
 	}
 };
 
@@ -54,7 +62,7 @@ void GameProgram::OnResize(vec2i& size)
 	// EMPTY
 }
 
-static MyClient _inst;
+static MyServer _inst;
 
 bool GameProgram::Initialize()
 {
@@ -64,10 +72,11 @@ bool GameProgram::Initialize()
 	const vec2 resolution(1280, 720);
 
 	mWindow = new GameWindow(this);
-	mWindow->Create("Client", (uint)resolution.X, (uint)resolution.Y, false);
+	mWindow->Create("Server", (uint)resolution.X, (uint)resolution.Y, false);
 
 	Network::Initialize();
-	_inst.Initialize(55555, "127.0.0.1");
+	_inst.Initialize(54000, "0.0.0.0");
+	// 55555, "127.0.0.1"
 
 	mWindow->Show();
 	return true;
