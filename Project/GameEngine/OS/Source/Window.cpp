@@ -5,6 +5,7 @@
 #include "Window.hpp"
 #include "FileSystem.hpp"
 #include "BigError.hpp"
+#include "WindowCursor.hpp"
 
 using namespace GameEngine;
 
@@ -59,26 +60,10 @@ void Window::ShowSplashScreen(strgv filename)
 	sbSplashWndVisible = true;
 }
 
-WindowCursor* Window::LoadHardwareCursorImage(strgv img)
-{
-	SDL_Surface* cursorSurface = SDL_LoadBMP(img.data());
-	if (cursorSurface != nullptr)
-	{
-		WindowCursor* result = SDL_CreateColorCursor(cursorSurface, 0, 0);
-		SDL_DestroySurface(cursorSurface);
-		return result;
-	}
-	return nullptr;
-}
-
 void Window::SetHardwareCursorImage(WindowCursor* cursor)
 {
-	SDL_SetCursor(cursor);
-}
-
-void Window::DestroyCursor(WindowCursor* cursor)
-{
-	SDL_DestroyCursor(cursor);
+	SDL_Cursor* cur = (cursor == nullptr) ? nullptr : cursor->mCursor;
+	SDL_SetCursor(cur);
 }
 
 void Window::ShowMessageBox(SDL_MessageBoxFlags flags, strgv header, strgv message, Window* window)

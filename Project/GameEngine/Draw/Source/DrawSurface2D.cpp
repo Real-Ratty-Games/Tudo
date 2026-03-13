@@ -6,7 +6,7 @@
 
 using namespace GameEngine;
 
-DrawSurface2D::DrawSurface2D(uint16 viewid, vec2 size, void* wndHandle) : DrawSurface(viewid, size, wndHandle)
+DrawSurface2D::DrawSurface2D(Renderer* renderer, uint16 viewid, vec2 size, void* wndHandle) : DrawSurface(renderer, viewid, size, wndHandle)
 {
 	if (viewid != 0)
 	{

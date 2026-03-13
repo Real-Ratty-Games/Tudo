@@ -40,11 +40,10 @@ void Sound::Initialize()
 	mCore->set3dListenerUp(0.0f, 1.0f, 0.0f);
 }
 
-void Sound::Release()
+Sound::~Sound()
 {
 	mCore->deinit();
 	delete mCore;
-	mCore = nullptr;
 }
 
 SoundCore* Sound::Core()

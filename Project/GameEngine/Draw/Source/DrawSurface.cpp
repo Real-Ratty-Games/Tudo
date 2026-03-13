@@ -8,7 +8,7 @@
 
 using namespace GameEngine;
 
-DrawSurface::DrawSurface(uint16 viewid, vec2 size, void* wndHandle)
+DrawSurface::DrawSurface(Renderer* renderer, uint16 viewid, vec2 size, void* wndHandle) : DrawObject(renderer)
 {
 	Location		= vec2i(0);
 	Resolution		= size;
@@ -29,7 +29,7 @@ DrawSurface::DrawSurface(uint16 viewid, vec2 size, void* wndHandle)
 	Clear();
 }
 
-void DrawSurface::Release()
+DrawSurface::~DrawSurface()
 {
 	if(mViewId != 0)
 		DestroyFB();

@@ -5,22 +5,27 @@
 #ifndef SHADER_HPP_
 #define SHADER_HPP_
 #include "SystemTypes.hpp"
+#include "DrawObject.hpp"
 #include "DrawData.hpp"
 #include <unordered_map>
 
 namespace GameEngine
 {
+	class Renderer;
+
 	/// <summary>
 	/// Manages a shader
 	/// </summary>
-	class Shader
+	class Shader : public DrawObject
 	{
 	public:
 		static void SetShaderDirectory(strgv dir);
 		static strg CompileAllShaders(strgv dir);
 
+		Shader(Renderer* renderer);
+		~Shader();
+
 		void Initialize(strgv shadername);
-		void Release();
 
 		void Submit(uint16 viewID, uint8 flags, const bool depth);
 

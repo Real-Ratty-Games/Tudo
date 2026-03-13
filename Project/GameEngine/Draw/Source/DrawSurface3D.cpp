@@ -8,7 +8,7 @@
 
 using namespace GameEngine;
 
-DrawSurface3D::DrawSurface3D(uint16 viewid, vec2 size, void* wndHandle, bool depthOnly) : DrawSurface(viewid, size, wndHandle)
+DrawSurface3D::DrawSurface3D(Renderer* renderer, uint16 viewid, vec2 size, void* wndHandle, bool depthOnly) : DrawSurface(renderer, viewid, size, wndHandle)
 {
 	bDepthOnly = depthOnly;
 	if (viewid != 0)

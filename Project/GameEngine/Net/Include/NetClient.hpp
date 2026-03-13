@@ -13,9 +13,10 @@ namespace GameEngine
 	{
 	public:
 		void Initialize(uint16 port, strgv ip);
-		void Release();
 
 	protected:
+		void Release();
+
 		virtual int Recv(char* buffer, int size, int flags = 0) = 0;
 		virtual int Send(const char* buffer, int size, int flags = 0) = 0;
 		virtual int ListenToServer() = 0;

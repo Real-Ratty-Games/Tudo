@@ -14,10 +14,11 @@ namespace GameEngine
 	{
 	public:
 		void	Initialize(uint16 port, strgv ip);
-		void	Release();
 		int		Run();
 
 	protected:
+		void		Release();
+
 		int			Recv(NetClientDataUDP& client, char* buffer, int size, int flags = 0);
 		int			Send(const NetClientDataUDP& client, const char* buffer, int size, int flags = 0);
 		virtual int ListenToClient() = 0;

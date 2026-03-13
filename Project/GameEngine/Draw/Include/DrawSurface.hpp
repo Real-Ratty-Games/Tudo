@@ -5,15 +5,18 @@
 #ifndef DRAWSURFACE_HPP_
 #define DRAWSURFACE_HPP_
 #include "SystemTypes.hpp"
+#include "DrawObject.hpp"
 #include "DrawData.hpp"
 
 namespace GameEngine
 {
-	class DrawSurface
+	class Renderer;
+
+	class DrawSurface : public DrawObject
 	{
 	public:
-		DrawSurface(uint16 viewid, vec2 size, void* wndHandle);
-		void Release();
+		DrawSurface(Renderer* renderer, uint16 viewid, vec2 size, void* wndHandle);
+		~DrawSurface();
 		void Clear();
 		void OnResize(vec2 size);
 		uint16 ViewID() const;

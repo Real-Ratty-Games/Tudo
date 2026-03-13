@@ -6,6 +6,7 @@
 #define GAMEWINDOW_HPP_
 #include <SystemTypes.hpp>
 #include <Window.hpp>
+#include <WindowCursor.hpp>
 #include <Program.hpp>
 
 using namespace GameEngine;
@@ -21,7 +22,8 @@ namespace MyGame
 		void EventCallback();
 
 	private:
-		Program* pProgram;
+		WindowCursor	mCursor;
+		Program*		pProgram;
 	};
 }
 #endif

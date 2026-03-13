@@ -15,7 +15,6 @@ namespace GameEngine
 	{
 	public:
 		void	Initialize(uint16 port, strgv ip);
-		void	Release();
 		int		Run();
 
 		const std::vector<NetClientDataTCP>& Clients();
@@ -26,6 +25,8 @@ namespace GameEngine
 		void Disconnect(NetClientDataTCP& client);
 
 	protected:
+		void		Release();
+
 		int			Recv(const NetClientDataTCP& client, char* buffer, int size, int flags = 0);
 		int			Send(const NetClientDataTCP& client, const char* buffer, int size, int flags = 0);
 		virtual int ListenToClient(const NetClientDataTCP& client) = 0;

@@ -6,6 +6,14 @@
 #define RENDERER_HPP_
 #include "SystemTypes.hpp"
 #include "DrawData.hpp"
+#include "Globals.hpp"
+#include "Shader.hpp"
+#include "Sprite.hpp"
+#include "Viewport3D.hpp"
+#include "DrawSurface.hpp"
+#include "DrawSurface2D.hpp"
+#include "DrawSurface3D.hpp"
+#include "SpriteAnimation.hpp"
 #include <vector>
 
 #define GAMEENGINE_RENDERER_MESH_STATE (BGFX_DISCARD_INDEX_BUFFER | BGFX_DISCARD_VERTEX_STREAMS | BGFX_DISCARD_STATE)
@@ -14,21 +22,17 @@ namespace GameEngine
 {
 	class Window;
 	class Shader;
-	class Sprite;
-	class Viewport3D;
-	class DrawSurface2D;
-	class DrawSurface3D;
-	class SpriteAnimator;
-	class ViewportOrtho3D;
 
-	namespace Renderer
+	class Renderer
 	{
-		bool Initialize(Window* window, DrawAPI api, bool vsync, MSAA msaa);
-		void Release();
+	public:
+		Renderer();
+		~Renderer();
+		bool Initialize(Window* window, DrawAPI api, bool vsync);
 		void BeginDraw();
 		void EndDraw();
 
-		void OnResize(vec2i size, bool vsync, MSAA msaa);
+		void OnResize(vec2i size, bool vsync);
 
 		const bgfx::Caps* GetGPUInfo();
 
@@ -68,7 +72,7 @@ namespace GameEngine
 
 		void PrepareSpriteInstancing(Sprite* sprite, SpriteInstanceData& idata, std::vector<Transform2D>& tdata);
 		void PrepareSpriteAtlasInstancing(Sprite* sprite, SpriteInstanceData& idata, std::vector<TransformAtlas2D>& tdata, vec2 subSize);
-			
+
 		void DrawSpriteInstanced(SpriteInstanceData& idata);
 		void DrawSpriteAtlasInstanced(SpriteInstanceData& idata, Sprite* sprite, vec2 subSize);
 
@@ -94,6 +98,31 @@ namespace GameEngine
 		void DrawMesh(uint8 flags = GAMEENGINE_RENDERER_MESH_STATE);
 
 		// End 3D Rendering
-	}
+
+	private:
+		inline void LoadTexture(Texture& texture, uint8* data, uint64 flags, int nrComponents,
+			strgv texturename, int width, int height, bool mipgen);
+		inline void LoadGPUTexture(Texture& texture, std::vector<uint8>& data, uint64 flags, strgv texturename);
+		inline void ClearActives();
+		void		Init3DLayout();
+		void		Init2DQuad();
+		void		Release2DQuad();
+		void		DrawTexture(Texture* texture, vec2& rotpiv, vec2& size, Transform2D& transformation);
+		void		CreateMesh(Mesh3D& modelMesh, MeshData& mdata);
+
+	private:
+		/// Active instances for rendering
+		Shader*						pActiveShader;
+		DrawSurface*				pActiveDrawSurface;
+
+		bgfx::VertexLayout			mMesh3DVBLayout;
+
+		/// For primitive 2D quad rendering
+		bgfx::VertexBufferHandle	mQuad2DVB;
+		float						mQuad2DView[16];
+
+		// don't update sample if it's the same!
+		Texture*					pQuad2DLastTex;
+	};
 }
 #endif

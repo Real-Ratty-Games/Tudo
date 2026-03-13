@@ -2,11 +2,14 @@
 	Copyright (c) 2026 Real Ratty Games.
 	Created by Norbert Gerberg.
 ======================================================*/
-#include "NetNode.hpp"
+#include "Memory.hpp"
+#include "BigError.hpp"
 
 using namespace GameEngine;
 
-NetNode::~NetNode()
+void Memory::Copy(void* dst, const void* src, uint64 size)
 {
-	Release();
+	if (!dst || !src || size == 0)
+		throw BigError("Memory is invalid!");
+	std::memcpy(dst, src, size);
 }

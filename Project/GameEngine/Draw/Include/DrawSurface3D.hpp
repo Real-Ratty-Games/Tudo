@@ -10,10 +10,12 @@
 
 namespace GameEngine
 {
+	class Renderer;
+
 	class DrawSurface3D : public DrawSurface
 	{
 	public:
-		DrawSurface3D(uint16 viewid, vec2 size, void* wndHandle, bool depthOnly);
+		DrawSurface3D(Renderer* renderer, uint16 viewid, vec2 size, void* wndHandle, bool depthOnly);
 		Texture& GetDepthTexture();
 
 	protected:

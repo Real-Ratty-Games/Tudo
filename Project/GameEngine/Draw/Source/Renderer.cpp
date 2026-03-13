@@ -3,18 +3,11 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "Renderer.hpp"
-#include "Globals.hpp"
 #include "BigError.hpp"
+#include "Memory.hpp"
 #include "Window.hpp"
 #include "FileSystem.hpp"
-#include "Shader.hpp"
-#include "Sprite.hpp"
-#include "Viewport3D.hpp"
-#include "DrawSurface.hpp"
-#include "DrawSurface2D.hpp"
-#include "DrawSurface3D.hpp"
 #include "Transformation.hpp"
-#include "SpriteAnimation.hpp"
 #include "Math.hpp"
 #include <bx/math.h>
 #include <bx/allocator.h>
@@ -42,28 +35,20 @@
 
 using namespace GameEngine;
 
-/// Active instances for rendering
-static Shader*		_ActiveShader		= nullptr;
-static DrawSurface*	_ActiveDrawSurface	= nullptr;
+Renderer::Renderer()
+{
+	pActiveShader		= nullptr;
+	pActiveDrawSurface	= nullptr;
+	pQuad2DLastTex		= nullptr;
+}
 
-static bgfx::VertexLayout		_Mesh3DVBLayout;
+Renderer::~Renderer()
+{
+	Release2DQuad();
+	bgfx::shutdown();
+}
 
-/// For primitive 2D quad rendering
-static bgfx::VertexBufferHandle	_Quad2DVB;
-static float					_Quad2DView[16];
-static Texture*					_Quad2DLastTex = nullptr; // don't update sample if it's the same!
-
-static inline void Renderer_LoadTexture(Texture& texture, uint8* data, uint64 flags, int nrComponents,
-	strgv texturename, int width, int height, bool mipgen);
-static inline void Renderer_LoadGPUTexture(Texture& texture, std::vector<uint8>& data, uint64 flags, strgv texturename);
-static inline void Renderer_ClearActives();
-static void	Renderer_Init3DLayout();
-static void	Renderer_Init2DQuad();
-static void	Renderer_Release2DQuad();
-static void	Renderer_DrawTexture(Texture* texture, vec2& rotpiv, vec2& size, Transform2D& transformation);
-static void	Renderer_CreateMesh(Mesh3D& modelMesh, MeshData& mdata);
-
-bool Renderer::Initialize(Window* window, DrawAPI api, bool vsync, MSAA msaa)
+bool Renderer::Initialize(Window* window, DrawAPI api, bool vsync)
 {
 	bgfx::Init init;
 	init.platformData.nwh = window->GetNativePtr();
@@ -85,18 +70,12 @@ bool Renderer::Initialize(Window* window, DrawAPI api, bool vsync, MSAA msaa)
 #endif
 
 	bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH);
-	bgfx::reset(wndSize.X, wndSize.Y, (vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE) | (uint)msaa);
+	bgfx::reset(wndSize.X, wndSize.Y, (vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE));
 	bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 
-	Renderer_Init2DQuad();
-	Renderer_Init3DLayout();
+	Init2DQuad();
+	Init3DLayout();
 	return true;
-}
-
-void Renderer::Release()
-{
-	Renderer_Release2DQuad();
-	bgfx::shutdown();
 }
 
 void Renderer::BeginDraw()
@@ -113,10 +92,10 @@ void Renderer::EndDraw()
 	bgfx::frame();
 }
 
-void Renderer::OnResize(vec2i size, bool vsync, MSAA msaa)
+void Renderer::OnResize(vec2i size, bool vsync)
 {
-	bgfx::reset(size.X, size.Y, (vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE) | (uint)msaa);
-}
+	bgfx::reset(size.X, size.Y, (vsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE));
+} // ignoring bgfx's native msaa on purpose
 
 const bgfx::Caps* Renderer::GetGPUInfo()
 {
@@ -162,7 +141,7 @@ void Renderer::LoadTextureFromFile(Texture& texture, strgv filename, uint64 flag
 		throw BigError(errmsg);
 	}
 
-	Renderer_LoadTexture(texture, data, flags, nrComponents, texturename, width, height, mipgen);
+	LoadTexture(texture, data, flags, nrComponents, texturename, width, height, mipgen);
 }
 
 void Renderer::LoadTextureFromMemory(Texture& texture, std::vector<uint8>& memData, uint64 flags, strgv texturename, bool flipUV, bool mipgen)
@@ -177,7 +156,7 @@ void Renderer::LoadTextureFromMemory(Texture& texture, std::vector<uint8>& memDa
 		throw BigError(errmsg);
 	}
 
-	Renderer_LoadTexture(texture, data, flags, nrComponents, texturename, width, height, mipgen);
+	LoadTexture(texture, data, flags, nrComponents, texturename, width, height, mipgen);
 }
 
 void Renderer::LoadGPUTextureFromFile(Texture& texture, strgv filename, uint64 flags, strgv texturename)
@@ -197,12 +176,12 @@ void Renderer::LoadGPUTextureFromFile(Texture& texture, strgv filename, uint64 f
 	file.read(reinterpret_cast<char*>(data.data()), size);
 	file.close();
 
-	Renderer_LoadGPUTexture(texture, data, flags, texturename);
+	LoadGPUTexture(texture, data, flags, texturename);
 }
 
 void Renderer::LoadGPUTextureFromMemory(Texture& texture, std::vector<uint8>& memData, uint64 flags, strgv texturename)
 {
-	Renderer_LoadGPUTexture(texture, memData, flags, texturename);
+	LoadGPUTexture(texture, memData, flags, texturename);
 }
 
 void Renderer::FreeTexture(Texture& tex)
@@ -216,12 +195,12 @@ void Renderer::FreeTexture(Texture& tex)
 
 void Renderer::SetActiveShader(Shader* shader)
 {
-	_ActiveShader = shader;
+	pActiveShader = shader;
 }
 
 Shader* Renderer::GetActiveShader()
 {
-	return _ActiveShader;
+	return pActiveShader;
 }
 
 void Renderer::SetTransform(const mat4& mat)
@@ -236,26 +215,26 @@ void Renderer::SetState(uint64 state)
 
 void Renderer::BeginDrawSprite(DrawSurface2D* surface, Viewport2D& viewport)
 {
-	_ActiveDrawSurface = surface;
-	_ActiveDrawSurface->Clear();
+	pActiveDrawSurface = surface;
+	pActiveDrawSurface->Clear();
 
 	float proj[16];
 	bx::mtxOrtho(proj, viewport.Location.X, viewport.Size.X + viewport.Location.Y,
 		viewport.Size.Y + viewport.Location.Y, viewport.Location.Y, 0.1f, 100.0f, 0.0f, false);
-	bgfx::setViewTransform(_ActiveDrawSurface->ViewID(), _Quad2DView, proj);
+	bgfx::setViewTransform(pActiveDrawSurface->ViewID(), mQuad2DView, proj);
 
-	bgfx::setVertexBuffer(0, _Quad2DVB);
+	bgfx::setVertexBuffer(0, mQuad2DVB);
 }
 
 void Renderer::EndDrawSprite()
 {
-	_Quad2DLastTex = nullptr;
-	Renderer_ClearActives();
+	pQuad2DLastTex = nullptr;
+	ClearActives();
 }
 
 void Renderer::DrawSprite(Sprite* sprite, Transform2D& transformation)
 {
-	Renderer_DrawTexture(sprite->GetTexture(), sprite->RotationPivot, sprite->Size, transformation);
+	DrawTexture(sprite->GetTexture(), sprite->RotationPivot, sprite->Size, transformation);
 }
 
 void Renderer::DrawSpriteAtlas(Sprite* sprite, TransformAtlas2D& transformation, vec2 subSize)
@@ -263,8 +242,8 @@ void Renderer::DrawSpriteAtlas(Sprite* sprite, TransformAtlas2D& transformation,
 	vec4 atinf[2];
 	atinf[0] = vec4(transformation.Index.X, transformation.Index.Y, sprite->Size.X, sprite->Size.Y);
 	atinf[1] = vec4(subSize.X, subSize.Y, 1.0f, 0.0f);
-	_ActiveShader->SetUniform("atlasInfo", atinf, 2);
-	Renderer_DrawTexture(sprite->GetTexture(), sprite->RotationPivot, subSize, transformation);
+	pActiveShader->SetUniform("atlasInfo", atinf, 2);
+	DrawTexture(sprite->GetTexture(), sprite->RotationPivot, subSize, transformation);
 }
 
 void Renderer::PrepareSpriteInstancing(Sprite* sprite, SpriteInstanceData& idata, std::vector<Transform2D>& tdata)
@@ -300,11 +279,11 @@ void Renderer::PrepareSpriteInstancing(Sprite* sprite, SpriteInstanceData& idata
 
 
 		const float* _mtx = mdl.Ptr();
-		memcpy(data, _mtx, insStride);
+		Memory::Copy(data, _mtx, insStride);
 		data += 64;
 
 		vec4 color = vec4(transf.ImageColor.R, transf.ImageColor.G, transf.ImageColor.B, transf.ImageColor.A);
-		memcpy(data, color.Ptr(), sizeof(vec4));
+		Memory::Copy(data, color.Ptr(), sizeof(vec4));
 		data += sizeof(vec4);
 	}
 }
@@ -349,11 +328,11 @@ void Renderer::PrepareSpriteAtlasInstancing(Sprite* sprite, SpriteInstanceData& 
 		csp2.Z = transf.ImageColor.A;
 
 		const float* _mtx = mdl.Ptr();
-		memcpy(data, _mtx, insStride);
+		Memory::Copy(data, _mtx, insStride);
 		data += 64;
 
 		vec4 color = vec4(transf.Index.X, transf.Index.Y, transf.ImageColor.R, transf.ImageColor.G);
-		memcpy(data, color.Ptr(), sizeof(vec4));
+		Memory::Copy(data, color.Ptr(), sizeof(vec4));
 		data += sizeof(vec4);
 	}
 }
@@ -364,13 +343,13 @@ void Renderer::DrawSpriteInstanced(SpriteInstanceData& idata)
 	bgfx::setInstanceDataBuffer(&idata.Buffer);
 
 	Texture* usetex = idata.pSprite->GetTexture();
-	if (_Quad2DLastTex != usetex)
+	if (pQuad2DLastTex != usetex)
 	{
-		_Quad2DLastTex = usetex;
-		_ActiveShader->SetTexture(0, "s_texColor", *usetex);
+		pQuad2DLastTex = usetex;
+		pActiveShader->SetTexture(0, "s_texColor", *usetex);
 	}
 
-	_ActiveShader->Submit(_ActiveDrawSurface->ViewID(), GAMEENGINE_RENDERER_SPRITE_FLAGS, true);
+	pActiveShader->Submit(pActiveDrawSurface->ViewID(), GAMEENGINE_RENDERER_SPRITE_FLAGS, true);
 }
 
 void Renderer::DrawSpriteAtlasInstanced(SpriteInstanceData& idata, Sprite* sprite, vec2 subSize)
@@ -378,7 +357,7 @@ void Renderer::DrawSpriteAtlasInstanced(SpriteInstanceData& idata, Sprite* sprit
 	vec4 atinf[2];
 	atinf[0] = vec4(0.0f, 0.0f, sprite->Size.X, sprite->Size.Y);
 	atinf[1] = vec4(subSize.X, subSize.Y, 1.0f, 0.0f);
-	_ActiveShader->SetUniform("atlasInfo", atinf, 2);
+	pActiveShader->SetUniform("atlasInfo", atinf, 2);
 	DrawSpriteInstanced(idata);
 }
 
@@ -516,7 +495,7 @@ void Renderer::LoadModelFromFile(Model3D& model, strgv filename)
 		file.read(reinterpret_cast<char*>(mdata.Vertices.data()), vsize * sizeof(MeshVertex));
 		file.read(reinterpret_cast<char*>(mdata.Indices.data()), isize * sizeof(uint16));
 
-		Renderer_CreateMesh(model.Meshes[i], mdata);
+		CreateMesh(model.Meshes[i], mdata);
 	}
 }
 
@@ -529,7 +508,7 @@ void Renderer::LoadModelFromMemory(Model3D& model, std::vector<uint8>& data)
 	uint64 offset = 0;
 
 	M3DCHeader header;
-	std::memcpy(&header, rdat + offset, sizeof(M3DCHeader));
+	Memory::Copy(&header, rdat + offset, sizeof(M3DCHeader));
 	offset += sizeof(M3DCHeader);
 
 	if (header.Magic != M3DC_MAGIC)
@@ -547,10 +526,10 @@ void Renderer::LoadModelFromMemory(Model3D& model, std::vector<uint8>& data)
 		uint64 vsize;
 		uint64 isize;
 
-		std::memcpy(&vsize, rdat + offset, sizeof(uint64));
+		Memory::Copy(&vsize, rdat + offset, sizeof(uint64));
 		offset += sizeof(uint64);
 
-		std::memcpy(&isize, rdat + offset, sizeof(uint64));
+		Memory::Copy(&isize, rdat + offset, sizeof(uint64));
 		offset += sizeof(uint64);
 
 		mdata.VSize = vsize;
@@ -560,14 +539,14 @@ void Renderer::LoadModelFromMemory(Model3D& model, std::vector<uint8>& data)
 		mdata.Indices.resize(isize);
 
 		const uint64 vtsize = vsize * sizeof(MeshVertex);
-		std::memcpy(mdata.Vertices.data(), rdat + offset, vtsize);
+		Memory::Copy(mdata.Vertices.data(), rdat + offset, vtsize);
 		offset += vtsize;
 
 		const uint64 itsize = isize * sizeof(uint16);
-		std::memcpy(mdata.Indices.data(), rdat + offset, itsize);
+		Memory::Copy(mdata.Indices.data(), rdat + offset, itsize);
 		offset += itsize;
 
-		Renderer_CreateMesh(model.Meshes[i], mdata);
+		CreateMesh(model.Meshes[i], mdata);
 	}
 }
 
@@ -584,8 +563,8 @@ void Renderer::FreeModel(Model3D& model)
 
 void Renderer::BeginDrawMesh(DrawSurface3D* surface, Viewport3D& viewport)
 {
-	_ActiveDrawSurface = surface;
-	_ActiveDrawSurface->Clear();
+	pActiveDrawSurface = surface;
+	pActiveDrawSurface->Clear();
 
 	float proj[16];
 	bx::mtxProj(proj, viewport.Fov, surface->AspectRatio, viewport.Near, viewport.Far,
@@ -595,8 +574,8 @@ void Renderer::BeginDrawMesh(DrawSurface3D* surface, Viewport3D& viewport)
 
 void Renderer::BeginDrawMesh(DrawSurface3D* surface, ViewportOrtho3D& viewport)
 {
-	_ActiveDrawSurface = surface;
-	_ActiveDrawSurface->Clear();
+	pActiveDrawSurface = surface;
+	pActiveDrawSurface->Clear();
 
 	float proj[16];
 	bx::mtxOrtho(proj, viewport.Left, viewport.Right, viewport.Bottom, viewport.Top, viewport.Near,
@@ -606,7 +585,7 @@ void Renderer::BeginDrawMesh(DrawSurface3D* surface, ViewportOrtho3D& viewport)
 
 void Renderer::EndDrawMesh()
 {
-	Renderer_ClearActives();
+	ClearActives();
 }
 
 void Renderer::SetMesh(uint8 stream, Mesh3D& mesh)
@@ -617,13 +596,10 @@ void Renderer::SetMesh(uint8 stream, Mesh3D& mesh)
 
 void Renderer::DrawMesh(uint8 flags)
 {
-	_ActiveShader->Submit(_ActiveDrawSurface->ViewID(), flags, true);
+	pActiveShader->Submit(pActiveDrawSurface->ViewID(), flags, true);
 }
 
-/*======================================================
-======================================================*/
-
-inline void Renderer_LoadTexture(Texture& texture, uint8* data, uint64 flags, int nrComponents, strgv texturename,
+inline void Renderer::LoadTexture(Texture& texture, uint8* data, uint64 flags, int nrComponents, strgv texturename,
 	int width, int height, bool mipgen)
 {
 	bgfx::TextureFormat::Enum format = bgfx::TextureFormat::R8;
@@ -700,7 +676,7 @@ inline void Renderer_LoadTexture(Texture& texture, uint8* data, uint64 flags, in
 	stbi_set_flip_vertically_on_load(false);
 }
 
-inline void Renderer_LoadGPUTexture(Texture& texture, std::vector<uint8>& data, uint64 flags, strgv texturename)
+inline void Renderer::LoadGPUTexture(Texture& texture, std::vector<uint8>& data, uint64 flags, strgv texturename)
 {
 	bx::DefaultAllocator allc;
 #if __APPLE__
@@ -735,20 +711,20 @@ inline void Renderer_LoadGPUTexture(Texture& texture, std::vector<uint8>& data, 
 	bimg::imageFree(ic);
 }
 
-inline void Renderer_ClearActives()
+inline void Renderer::ClearActives()
 {
-	_ActiveShader = nullptr;
-	_ActiveDrawSurface = nullptr;
+	pActiveShader = nullptr;
+	pActiveDrawSurface = nullptr;
 }
 
-void Renderer_Init3DLayout()
+void Renderer::Init3DLayout()
 {
-	_Mesh3DVBLayout.begin()
+	mMesh3DVBLayout.begin()
 		GAMEENGINE_RENDERER_M3D_VERTEXLAYOUT
 		.end();
 }
 
-void Renderer_Init2DQuad()
+void Renderer::Init2DQuad()
 {
 	static QuadVertex quadVertices[] = {
 		{0.0f, 1.0f, 0.0f, 1.0f},
@@ -765,23 +741,23 @@ void Renderer_Init2DQuad()
 		.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
 		.end();
 
-	_Quad2DVB = Renderer::CreateVertexBuffer(quadVertices, sizeof(quadVertices), pcvLayout);
+	mQuad2DVB = Renderer::CreateVertexBuffer(quadVertices, sizeof(quadVertices), pcvLayout);
 
 	const bx::Vec3 at = { 0.0f, 0.0f,  0.0f };
 	const bx::Vec3 eye = { 0.0f, 0.0f, -5.0f };
-	bx::mtxLookAt(_Quad2DView, eye, at);
+	bx::mtxLookAt(mQuad2DView, eye, at);
 }
 
-void Renderer_Release2DQuad()
+void Renderer::Release2DQuad()
 {
-	if (bgfx::isValid(_Quad2DVB))
+	if (bgfx::isValid(mQuad2DVB))
 	{
-		bgfx::destroy(_Quad2DVB);
-		_Quad2DVB = BGFX_INVALID_HANDLE;
+		bgfx::destroy(mQuad2DVB);
+		mQuad2DVB = BGFX_INVALID_HANDLE;
 	}
 }
 
-void Renderer_DrawTexture(Texture* texture, vec2& rotpiv, vec2& size, Transform2D& transformation)
+void Renderer::DrawTexture(Texture* texture, vec2& rotpiv, vec2& size, Transform2D& transformation)
 {
 	vec2 rscale = size * transformation.Scale;
 
@@ -802,21 +778,20 @@ void Renderer_DrawTexture(Texture* texture, vec2& rotpiv, vec2& size, Transform2
 	bgfx::setState(GAMEENGINE_RENDERER_SPRITE_STATE);
 
 	vec4 ucolor = vec4(transformation.ImageColor.R, transformation.ImageColor.G, transformation.ImageColor.B, transformation.ImageColor.A);
-	_ActiveShader->SetUniform("color", ucolor.Ptr());
+	pActiveShader->SetUniform("color", ucolor.Ptr());
 
-
-	if (_Quad2DLastTex != texture)
+	if (pQuad2DLastTex != texture)
 	{
-		_Quad2DLastTex = texture;
-		_ActiveShader->SetTexture(0, "s_texColor", *texture);
+		pQuad2DLastTex = texture;
+		pActiveShader->SetTexture(0, "s_texColor", *texture);
 	}
 
-	_ActiveShader->Submit(_ActiveDrawSurface->ViewID(), GAMEENGINE_RENDERER_SPRITE_FLAGS, true);
+	pActiveShader->Submit(pActiveDrawSurface->ViewID(), GAMEENGINE_RENDERER_SPRITE_FLAGS, true);
 }
 
-void Renderer_CreateMesh(Mesh3D& modelMesh, MeshData& mdata)
+void Renderer::CreateMesh(Mesh3D& modelMesh, MeshData& mdata)
 {
-	modelMesh.VBH = Renderer::CreateVertexBuffer(mdata.Vertices.data(), mdata.VSize * sizeof(MeshVertex), _Mesh3DVBLayout);
+	modelMesh.VBH = Renderer::CreateVertexBuffer(mdata.Vertices.data(), mdata.VSize * sizeof(MeshVertex), mMesh3DVBLayout);
 	if (!bgfx::isValid(modelMesh.VBH))
 		throw BigError("Vertex Buffer is invalid!");
 

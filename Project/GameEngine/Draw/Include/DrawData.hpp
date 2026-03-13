@@ -27,15 +27,6 @@ namespace GameEngine
         METAL       = bgfx::RendererType::Metal
 	};
 
-	enum class MSAA : uint
-	{
-		NONE	= 0,
-		X2		= 0x00000010,
-		X4		= 0x00000020,
-		X8		= 0x00000030,
-		X16		= 0x00000040
-	};
-
 	struct Color
 	{
 		float R;

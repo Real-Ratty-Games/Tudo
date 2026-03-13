@@ -69,6 +69,26 @@ strg Shader::CompileAllShaders(strgv dir)
 	return result;
 }
 
+Shader::Shader(Renderer* renderer) : DrawObject(renderer)
+{
+	mHandle = BGFX_INVALID_HANDLE;
+}
+
+Shader::~Shader()
+{
+	if (bgfx::isValid(mHandle))
+	{
+		for (auto& it : mUniforms)
+		{
+			if (bgfx::isValid(it.second))
+				bgfx::destroy(it.second);
+		}
+		mUniforms.clear();
+
+		bgfx::destroy(mHandle);
+	}
+}
+
 void Shader::Initialize(strgv shadername)
 {
 	bgfx::RendererType::Enum type = bgfx::getRendererType();
@@ -108,21 +128,6 @@ void Shader::Initialize(strgv shadername)
 		bgfx::setName(vsh, strg(strg(shadername) + "_fs").c_str());
 
 		mHandle = bgfx::createProgram(vsh, fsh, true);
-	}
-}
-
-void Shader::Release()
-{
-	if (bgfx::isValid(mHandle))
-	{
-		for (auto& it : mUniforms)
-		{
-			if (bgfx::isValid(it.second))
-				bgfx::destroy(it.second);
-		}
-		mUniforms.clear();
-
-		bgfx::destroy(mHandle);
 	}
 }
 

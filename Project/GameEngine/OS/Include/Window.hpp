@@ -9,7 +9,7 @@
 
 namespace GameEngine
 {
-	typedef SDL_Cursor WindowCursor;
+	class WindowCursor;
 
 	/// <summary>
 	/// Managing window creation and cleanup
@@ -24,14 +24,7 @@ namespace GameEngine
 		static bool IsSplashScreenVisible();
 		static bool IsSDLInit();
 
-		/// <summary>
-		/// Set hardware cursor image
-		/// </summary>
-		/// <param name="img">format must be bmp</param>
-		static WindowCursor*	LoadHardwareCursorImage(strgv img);
-		static void				SetHardwareCursorImage(WindowCursor* cursor);
-		static void				DestroyCursor(WindowCursor* cursor);
-
+		static void SetHardwareCursorImage(WindowCursor* cursor);
 		static void ShowMessageBox(SDL_MessageBoxFlags flags, strgv header, strgv message, Window* window = nullptr);
 
 		void Create(strgv title, uint width, uint height, bool fs);

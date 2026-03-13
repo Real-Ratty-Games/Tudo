@@ -9,10 +9,12 @@
 
 namespace GameEngine
 {
+	class Renderer;
+
 	class DrawSurface2D : public DrawSurface
 	{
 	public:
-		DrawSurface2D(uint16 viewid, vec2 size, void* wndHandle);
+		DrawSurface2D(Renderer* renderer, uint16 viewid, vec2 size, void* wndHandle);
 
 	protected:
 		void UpdateFB(vec2i texSize, bgfx::TextureFormat::Enum format = bgfx::TextureFormat::RGBA8);

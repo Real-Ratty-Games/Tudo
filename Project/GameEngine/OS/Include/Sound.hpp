@@ -30,7 +30,7 @@ namespace GameEngine
 		static void LoadFromMemory(SoundWav& obj, std::vector<uint8>& data);
 
 		void Initialize();
-		void Release();
+		~Sound();
 
 		SoundCore* Core();
 
