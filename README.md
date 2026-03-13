@@ -20,6 +20,7 @@ Preferably, use VS2022 or XCode.
   * Simple binary archive
   * Alarm event system
   * Fixed-timestep clock
+  * Simple smart pointer
 * <b>OS</b>
   * Window management
   * Keyboard, mouse and gamepad input
