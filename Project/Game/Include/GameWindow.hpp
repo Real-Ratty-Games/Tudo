@@ -9,7 +9,7 @@
 #include <WindowCursor.hpp>
 #include <Program.hpp>
 
-using namespace GameEngine;
+using namespace Tudo;
 
 namespace MyGame
 {

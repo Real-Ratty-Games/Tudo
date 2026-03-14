@@ -10,13 +10,15 @@
 #include <Clock.hpp>
 #include <Sound.hpp>
 #include <Renderer.hpp>
+#include <Texture.hpp>
 #include <Shader.hpp>
 #include <Sprite.hpp>
 #include <DrawSurface2D.hpp>
 #include <DrawSurface3D.hpp>
 #include <SpriteAnimation.hpp>
+#include <AssetLoader.hpp>
 
-using namespace GameEngine;
+using namespace Tudo;
 
 namespace MyGame
 {
@@ -40,7 +42,9 @@ namespace MyGame
 		SafePtr<GameWindow>		mWindow;
 		Clock					mClock = Clock(60.0f);
 
-		Sound					mSound;
+		SoundManager			mSound;
+
+		SafePtr<AssetLoader>	mAssetLoader;
 
 		Renderer				mRenderer;
 		Viewport2D				mCamera;
@@ -49,6 +53,9 @@ namespace MyGame
 		SafePtr<Shader>			mSprite2DAtlasShader;
 		SafePtr<Shader>			mSprite2DAtlasIShader;
 		SafePtr<DrawSurface2D>	mBackBufferSurface;
+
+		SoundWavStream mStream;
+		SoundHandle mSHandle;
 	};
 }
 #endif

@@ -12,7 +12,7 @@
 #include "Globals.hpp"
 #include "FileSystem.hpp"
 
-using namespace GameEngine;
+using namespace Tudo;
 
 static std::vector<MeshData> _Model;
 

@@ -38,6 +38,8 @@ bool GameProgram::Initialize()
 	if (!mRenderer.Initialize(mWindow.Get(), dapi, true))
 		return false;
 
+	mAssetLoader = new AssetLoader(&mRenderer, "Data");
+
 	// setup shaders
 	const strg shaderPath = FileSystem::GetResourcePath("Data/Shaders").string();
 	const strg shaderDevPath = FileSystem::GetResourcePath("Data/Development/Shaders").string();
@@ -57,6 +59,12 @@ bool GameProgram::Initialize()
 
 	Window::DestroySplashScreen();
 	mWindow->Show();
+
+
+
+	mAssetLoader->StreamSoundFromFile(mStream, "test.wav");
+	mSHandle = mSound.Core()->play(mStream.Handle);
+
 	return true;
 }
 
@@ -93,6 +101,8 @@ void GameProgram::Cleanup()
 {
 	Window::SetHardwareCursorImage(nullptr);
 	Window::Release();
+
+	mSound.Core()->stop(mSHandle);
 }
 
 void GameProgram::LoadShaders()
