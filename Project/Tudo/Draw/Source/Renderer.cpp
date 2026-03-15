@@ -15,7 +15,7 @@
 #define TUDO_RENDERER_SPRITE_FLAGS (BGFX_DISCARD_INDEX_BUFFER | BGFX_DISCARD_STATE | BGFX_DISCARD_TRANSFORM)
 #define TUDO_RENDERER_SPRITE_STATE (BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_DEPTH_TEST_LESS)
 
-#define GAMEENGINE_RENDERER_M3D_VERTEXLAYOUT \
+#define TUDO_RENDERER_M3D_VERTEXLAYOUT \
 	.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)	\
 	.add(bgfx::Attrib::Normal, 3, bgfx::AttribType::Float)		\
 	.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)	\
@@ -422,7 +422,7 @@ inline void Renderer::ClearActives()
 void Renderer::Init3DLayout()
 {
 	mMesh3DVBLayout.begin()
-		GAMEENGINE_RENDERER_M3D_VERTEXLAYOUT
+		TUDO_RENDERER_M3D_VERTEXLAYOUT
 		.end();
 }
 

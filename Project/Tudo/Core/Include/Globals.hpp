@@ -44,7 +44,7 @@ namespace Tudo
 		float BX;
 		float BY;
 		float BZ;
-	}; // GAMEENGINE_RENDERER_M3D_VERTEXLAYOUT
+	}; // TUDO_RENDERER_M3D_VERTEXLAYOUT
 
 	struct MeshData
 	{
