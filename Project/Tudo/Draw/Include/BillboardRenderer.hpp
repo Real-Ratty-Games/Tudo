@@ -18,7 +18,7 @@ namespace Tudo
 	{
 	public:
 		BillboardRenderer(GraphicsDevice* gdevice, DrawPipeline* pipeline);
-		void Draw(Texture* texture, vec2 scale, Color color, bool alt);
+		void Draw(Texture* texture, vec2 scale, Color color, bool cylindric);
 	};
 }
 #endif

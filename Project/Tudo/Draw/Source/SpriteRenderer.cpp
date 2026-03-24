@@ -9,32 +9,10 @@
 #include "Sprite.hpp"
 #include "SpriteAnimation.hpp"
 #include "Shader.hpp"
-#include "Projection.hpp"
 
 using namespace Tudo;
 
 SpriteRenderer::SpriteRenderer(GraphicsDevice* gdevice, DrawPipeline* pipeline) : Renderer(gdevice, pipeline)
-{
-	pQuad2DLastTex		= nullptr;
-
-	const vec3 eye(0.0f, 0.0f, -5.0f);
-	const vec3 target(0.0f, 0.0f, 0.0f);
-	mQuad2DView = Math::LookAtLH(eye, target, vec3(.0f, .1f, .0f));
-}
-
-void SpriteRenderer::BeginDrawSprite(Viewport2D& viewport)
-{
-	DrawSurface* surface = pPipeline->GetActiveDrawSurface();
-	surface->Clear();
-
-	mat4 proj = Math::ProjectOrthoLH(viewport.Location.X, viewport.Size.X + viewport.Location.Y,
-		viewport.Size.Y + viewport.Location.Y, viewport.Location.Y, 0.1f, 100.0f, 0.0f);
-
-	bgfx::setViewTransform(surface->ViewID(), mQuad2DView.Ptr(), proj.Ptr());
-	bgfx::setVertexBuffer(0, pGDevice->GetQuadVertexHandle());
-}
-
-void SpriteRenderer::EndDrawSprite()
 {
 	pQuad2DLastTex = nullptr;
 }

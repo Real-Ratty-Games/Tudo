@@ -8,6 +8,7 @@
 #include "FileSystem.hpp"
 #include "Math.hpp"
 #include "Transformation.hpp"
+#include "Projection.hpp"
 #include "Window.hpp"
 #include "Texture.hpp"
 #include "Shader.hpp"
@@ -121,6 +122,11 @@ void GraphicsDevice::SetMesh(uint8 stream, const Mesh3D& mesh)
 	bgfx::setIndexBuffer(mesh.IBH);
 }
 
+void GraphicsDevice::SetModelTransform(const mat4& mat)
+{
+	bgfx::setTransform(mat.Ptr());
+}
+
 bgfx::VertexBufferHandle GraphicsDevice::CreateVertexBuffer(const void* data, uint size, bgfx::VertexLayout& layout)
 {
 	return bgfx::createVertexBuffer(bgfx::copy(data, size), layout);
@@ -134,6 +140,11 @@ bgfx::IndexBufferHandle GraphicsDevice::CreateIndexBuffer(const void* data, uint
 bgfx::VertexBufferHandle& GraphicsDevice::GetQuadVertexHandle()
 {
 	return mQuad2DVB;
+}
+
+const mat4& GraphicsDevice::GetQuad2DView()
+{
+	return mQuad2DView;
 }
 
 bgfx::VertexLayout& GraphicsDevice::GetMeshVertexLayout()
@@ -159,6 +170,10 @@ void GraphicsDevice::Init2DQuad()
 		.end();
 
 	mQuad2DVB = CreateVertexBuffer(quadVertices, sizeof(quadVertices), pcvLayout);
+
+	const vec3 eye(0.0f, 0.0f, -5.0f);
+	const vec3 target(0.0f, 0.0f, 0.0f);
+	mQuad2DView = Math::LookAtLH(eye, target, vec3(.0f, .1f, .0f));
 }
 
 void GraphicsDevice::Release2DQuad()

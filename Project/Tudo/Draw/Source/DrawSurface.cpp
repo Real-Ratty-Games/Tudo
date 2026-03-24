@@ -23,8 +23,6 @@ DrawSurface::DrawSurface(GraphicsDevice* gdevice, uint16 viewid, vec2 size, void
 
 	mFbTex = new Texture(gdevice);
 
-	bgfx::setViewMode(mViewId, bgfx::ViewMode::Sequential);
-
 	mFbHandle = BGFX_INVALID_HANDLE;
 
 	bgfx::setViewRect(mViewId, (uint16)Location.X, (uint16)Location.Y, (uint16)Resolution.X, (uint16)Resolution.Y);

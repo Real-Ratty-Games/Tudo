@@ -15,6 +15,8 @@ DrawSurface2D::DrawSurface2D(GraphicsDevice* gdevice, uint16 viewid, vec2 size, 
 		UpdateFB(size);
 		SetFBViewId();
 	}
+
+	bgfx::setViewMode(mViewId, bgfx::ViewMode::Sequential);
 }
 
 void DrawSurface2D::UpdateFB(vec2i texSize, bgfx::TextureFormat::Enum format)

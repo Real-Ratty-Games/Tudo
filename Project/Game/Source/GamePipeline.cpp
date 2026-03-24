@@ -18,7 +18,8 @@ GamePipeline::GamePipeline(GraphicsDevice* gdevice, AssetLoader* assetloader, co
 
 	// create color renderer
 	mColorModelRenderer = new ColorModelRenderer(pGDevice, this);
-	mColorModelRenderer->SetColor(0xffffffff);
+	// mColorModelRenderer->SetColor(0xffffffff);
+	mColorModelRenderer->SetColor(Color(1, 1, 1, 0.5f));
 
 	// create billboard renderer
 	mBillboardRenderer = new BillboardRenderer(pGDevice, this);
@@ -68,21 +69,19 @@ GamePipeline::GamePipeline(GraphicsDevice* gdevice, AssetLoader* assetloader, co
 void GamePipeline::Draw()
 {
 	PrepareDrawModel(_3dsurface.Get(), _vp3d);
-	SetActiveDrawSurface(_3dsurface.Get());
 
 	SetActiveShader(mColorMeshShader.Get());
 	mColorModelRenderer->DrawModel(*_model);
+
+	mat4 mdl = mat4::Identity();
+	mdl = Math::Translate(mdl, vec3(0.0f, 0.0f, 10.0f), false);
+	pGDevice->SetModelTransform(mdl);
 
 	SetActiveShader(mBillboardShader.Get());
 	mBillboardRenderer->Draw(_ftex.Get(), vec2(1.0f), 0xffffffff, false);
 
 
-	// need a way to set transform for 3d stuff...
-
-
-
-	SetActiveDrawSurface(mBackBufferSurface.Get());
-	mSpriteRenderer->BeginDrawSprite(mCamera);
+	PrepareDrawSprite(mBackBufferSurface.Get(), mCamera);
 	// Render here...
 
 	SetActiveShader(mSprite2DShader.Get());
@@ -92,8 +91,6 @@ void GamePipeline::Draw()
 
 	SetActiveShader(mSprite2DAtlasIShader.Get());
 	mSpriteRenderer->DrawSpriteFontText(_ffont, _SimpleTextData);
-
-	mSpriteRenderer->EndDrawSprite();
 }
 
 void GamePipeline::OnResize(const vec2& size)

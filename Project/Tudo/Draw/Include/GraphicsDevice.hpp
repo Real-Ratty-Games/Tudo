@@ -8,7 +8,9 @@
 #include "DrawData.hpp"
 #include <vector>
 
-#define TUDO_RENDERER_MESH_DEFAULT_STATE	(BGFX_DISCARD_INDEX_BUFFER | BGFX_DISCARD_VERTEX_STREAMS | BGFX_DISCARD_STATE)
+#define TUDO_RENDERER_MESH_DEFAULT_DISCARD	(BGFX_DISCARD_INDEX_BUFFER | BGFX_DISCARD_VERTEX_STREAMS | BGFX_DISCARD_STATE)
+// BGFX_STATE_WRITE_Z
+#define TUDO_RENDERER_MESH_DEFAULT_STATE	(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_LESS | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_CULL_CCW)
 #define TUDO_RENDERER_SPRITE_FLAGS			(BGFX_DISCARD_INDEX_BUFFER | BGFX_DISCARD_STATE | BGFX_DISCARD_TRANSFORM)
 #define TUDO_RENDERER_SPRITE_STATE			(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_DEPTH_TEST_LESS)
 
@@ -35,11 +37,14 @@ namespace Tudo
 		void Printf(vec2i location, uint8 attr, strgv text);
 		void DrawTexture(Shader* shader, DrawSurface* surface, Texture* texture, vec2& rotpiv, vec2& size, Transform2D& transformation);
 		void SetMesh(uint8 stream, const Mesh3D& mesh);
+		void SetModelTransform(const mat4& mat);
 
 		bgfx::VertexBufferHandle	CreateVertexBuffer(const void* data, uint size, bgfx::VertexLayout& layout);
 		bgfx::IndexBufferHandle		CreateIndexBuffer(const void* data, uint size);
 
 		bgfx::VertexBufferHandle&	GetQuadVertexHandle();
+		const mat4&					GetQuad2DView();
+
 		bgfx::VertexLayout&			GetMeshVertexLayout();
 
 		friend class AssetLoader;
@@ -51,6 +56,8 @@ namespace Tudo
 
 	private:
 		bgfx::VertexBufferHandle	mQuad2DVB;
+		mat4						mQuad2DView;
+
 		bgfx::VertexLayout			mMesh3DVBLayout;
 	};
 }

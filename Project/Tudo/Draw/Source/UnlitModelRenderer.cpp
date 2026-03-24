@@ -21,16 +21,11 @@ void UnlitModelRenderer::DrawMesh(const Mesh3D& mesh)
 {
 	Shader* shader = pPipeline->GetActiveShader();
 
-	bgfx::setState(BGFX_STATE_WRITE_RGB
-		| BGFX_STATE_WRITE_A
-		| BGFX_STATE_WRITE_Z
-		| BGFX_STATE_DEPTH_TEST_LESS
-		| BGFX_STATE_BLEND_ALPHA
-		| BGFX_STATE_CULL_CCW);
+	bgfx::setState(TUDO_RENDERER_MESH_DEFAULT_STATE);
 
 	pGDevice->SetMesh(0, mesh);
 	shader->SetTexture(0, "s_texColor", *pTexture);
-	shader->Submit(pPipeline->GetActiveDrawSurface()->ViewID(), TUDO_RENDERER_MESH_DEFAULT_STATE, true);
+	shader->Submit(pPipeline->GetActiveDrawSurface()->ViewID(), TUDO_RENDERER_MESH_DEFAULT_DISCARD, true);
 }
 
 void UnlitModelRenderer::SetTexture(Texture* texture)

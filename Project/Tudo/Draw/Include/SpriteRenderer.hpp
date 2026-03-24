@@ -13,7 +13,6 @@ namespace Tudo
 	class GraphicsDevice;
 	class SpriteAnimator;
 	class DrawPipeline;
-	class DrawSurface2D;
 	class Texture;
 	class Sprite;
 
@@ -21,9 +20,6 @@ namespace Tudo
 	{
 	public:
 		SpriteRenderer(GraphicsDevice* gdevice, DrawPipeline* pipeline);
-
-		void BeginDrawSprite(Viewport2D& viewport);
-		void EndDrawSprite();
 
 		void DrawSprite(Sprite* sprite, Transform2D& transformation);
 		void DrawSpriteAtlas(Sprite* sprite, TransformAtlas2D& transformation, vec2 subSize);
@@ -44,8 +40,7 @@ namespace Tudo
 		void DrawTexture(Texture* texture, vec2& rotpiv, vec2& size, Transform2D& transformation);
 
 	private:
-		Texture*		pQuad2DLastTex;		// don't update sample if it's the same!
-		mat4			mQuad2DView;
+		Texture* pQuad2DLastTex; // don't update sample if it's the same!
 	};
 }
 #endif

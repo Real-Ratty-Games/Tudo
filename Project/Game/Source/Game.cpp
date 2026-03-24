@@ -29,7 +29,7 @@ bool GameProgram::Initialize()
 	const vec2 resolution(1280, 720);
 
 	mWindow = new GameWindow(this);
-	mWindow->Create("My Game", (uint)resolution.X, (uint)resolution.Y, false);
+	mWindow->Create("Tudo Engine Game", (uint)resolution.X, (uint)resolution.Y, false);
 
 	// init renderer
 	DrawAPI dapi = DrawAPI::DIRECT3D11;

@@ -19,6 +19,8 @@ DrawSurface3D::DrawSurface3D(GraphicsDevice* gdevice, uint16 viewid, vec2 size, 
 		UpdateFB(size);
 		SetFBViewId();
 	}
+
+	bgfx::setViewMode(mViewId, bgfx::ViewMode::DepthDescending);
 }
 
 Texture* DrawSurface3D::GetDepthTexture()
