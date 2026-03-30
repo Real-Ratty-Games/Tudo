@@ -20,6 +20,7 @@ namespace Tudo
 
 		bgfx::TextureHandle&	Handle();
 		const vec2i&			Size();
+		bool					IsCubemap();
 
 		friend class DrawSurface2D;
 		friend class DrawSurface3D;
@@ -28,6 +29,7 @@ namespace Tudo
 	private:
 		bgfx::TextureHandle mHandle;
 		vec2i				mSize;
+		bool				bIsCubemap;
 	};
 }
 #endif

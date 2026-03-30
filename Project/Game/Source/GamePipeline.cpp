@@ -20,6 +20,9 @@ GamePipeline::GamePipeline(GraphicsDevice& gdevice, AssetLoader& assetloader, ve
 	// create billboard renderer
 	mBillboardRenderer = new BillboardRenderer(*pGDevice, *this);
 
+	// create skybox renderer
+	mSkyboxModelRenderer = new SkyboxModelRenderer(*pGDevice, *this);
+
 	// create back buffer surface
 	mBackBufferSurface = new DrawSurface2D(gdevice, 0, resolution, nullptr);
 
@@ -34,7 +37,7 @@ void GamePipeline::Draw()
 	PrepareDraw2D(*mBackBufferSurface, mCamera);
 
 		SetActiveShader(mColorQuadShader.Get());
-		
+
 		Transform2D transf;
 		mSpriteRenderer->DrawColorQuad(transf, 0, 128);
 }
@@ -98,9 +101,18 @@ void GamePipeline::LoadShaders(AssetLoader& assetloader)
 	mBillboardAtlasIShader = new Shader(*pGDevice);
 	assetloader.LoadShader(*mBillboardAtlasIShader, "Shaders", "BillboardAtlasI");
 
-	pGDevice->InitShaderUniform("s_texColor", ShaderUniformType::Sampler);
-	pGDevice->InitShaderUniform("u_color", ShaderUniformType::Vec4);
-	pGDevice->InitShaderUniform("u_atlasInfo", ShaderUniformType::Vec4, 2);
-	pGDevice->InitShaderUniform("u_transform", ShaderUniformType::Vec4);
-	pGDevice->InitShaderUniform("u_flags", ShaderUniformType::Vec4);
+	// default skybox mesh shader
+	mSkyboxMeshShader = new Shader(*pGDevice);
+	assetloader.LoadShader(*mSkyboxMeshShader, "Shaders", "SkyboxMesh");
+
+	// default skybox mesh instancing shader
+	mSkyboxMeshIShader = new Shader(*pGDevice);
+	assetloader.LoadShader(*mSkyboxMeshIShader, "Shaders", "SkyboxMeshI");
+
+	pGDevice->InitShaderUniform("s_texColor",	ShaderUniformType::Sampler);
+	pGDevice->InitShaderUniform("s_envMap",		ShaderUniformType::Sampler);
+	pGDevice->InitShaderUniform("u_color",		ShaderUniformType::Vec4);
+	pGDevice->InitShaderUniform("u_atlasInfo",	ShaderUniformType::Vec4, 2);
+	pGDevice->InitShaderUniform("u_transform",	ShaderUniformType::Vec4);
+	pGDevice->InitShaderUniform("u_flags",		ShaderUniformType::Vec4);
 }

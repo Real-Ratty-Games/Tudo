@@ -364,14 +364,27 @@ void AssetLoader::LoadGPUTexture(Texture& texture, const std::vector<uint8>& dat
 		throw BigError(errmsg);
 	}
 
-	texture.mHandle = bgfx::createTexture2D(
-		static_cast<uint16>(ic->m_width),
-		static_cast<uint16>(ic->m_height),
-		(ic->m_numMips > 0),
-		ic->m_numLayers,
-		(bgfx::TextureFormat::Enum)ic->m_format,
-		flags,
-		bgfx::copy(ic->m_data, ic->m_size));
+	if (ic->m_cubeMap)
+	{
+		texture.mHandle = bgfx::createTextureCube(
+			static_cast<uint16>(ic->m_width),
+			(ic->m_numMips > 0), ic->m_numLayers,
+			(bgfx::TextureFormat::Enum)ic->m_format,
+			flags,
+			bgfx::copy(ic->m_data, ic->m_size));
+		texture.bIsCubemap = true;
+	}
+	else
+	{
+		texture.mHandle = bgfx::createTexture2D(
+			static_cast<uint16>(ic->m_width),
+			static_cast<uint16>(ic->m_height),
+			(ic->m_numMips > 0),
+			ic->m_numLayers,
+			(bgfx::TextureFormat::Enum)ic->m_format,
+			flags,
+			bgfx::copy(ic->m_data, ic->m_size));
+	}
 
 	if (bgfx::isValid(texture.mHandle))
 		bgfx::setName(texture.mHandle, texturename.data());

@@ -106,7 +106,7 @@ void BillboardRenderer::PrepareSpriteInstancing(Sprite& sprite, SpriteInstanceDa
 		Memory::Copy(data, loc.Ptr(), sizeof(mat4));
 		data += sizeof(vec4);
 
-		vec4 idata = vec4(transf.Scale.X, transf.Scale.Y, transf.bCylindric ? 1 : 0, 0);
+		vec4 idata = vec4(transf.Scale.X, transf.Scale.Y, transf.bCylindric ? 1.0f : 0.0f, 0.0f);
 		Memory::Copy(data, idata.Ptr(), sizeof(vec4));
 		data += sizeof(vec4);
 
@@ -133,11 +133,11 @@ void BillboardRenderer::PrepareSpriteAtlasInstancing(Sprite& sprite, SpriteInsta
 	{
 		auto& transf = tdata[i];
 
-		vec4 loc = vec4(transf.Location.X, transf.Location.Y, transf.Location.Z, transf.bFlipV ? 1 : 0);
+		vec4 loc = vec4(transf.Location.X, transf.Location.Y, transf.Location.Z, transf.bFlipV ? 1.0f : 0.0f);
 		Memory::Copy(data, loc.Ptr(), sizeof(mat4));
 		data += sizeof(vec4);
 
-		vec4 idata = vec4(transf.Scale.X, transf.Scale.Y, transf.bCylindric ? 1 : 0, transf.bFlipU ? 1 : 0);
+		vec4 idata = vec4(transf.Scale.X, transf.Scale.Y, transf.bCylindric ? 1.0f : 0.0f, transf.bFlipU ? 1.0f : 0.0f);
 		Memory::Copy(data, idata.Ptr(), sizeof(vec4));
 		data += sizeof(vec4);
 
@@ -163,7 +163,7 @@ void BillboardRenderer::DrawTexture(Shader& shader, Sprite& sprite, const Billbo
 	vec4 tvec = vec4(transform.Scale.X, transform.Scale.Y, sprite.RotationPivot.X, sprite.RotationPivot.Y);
 	pGDevice->SetShaderUniform("u_transform", tvec.Ptr());
 
-	vec4 fvec = vec4(transform.bCylindric ? 1 : 0, transform.bFlipV ? 1 : 0, transform.bFlipU ? 1 : 0, 0);
+	vec4 fvec = vec4(transform.bCylindric ? 1.0f : 0.0f, transform.bFlipV ? 1.0f : 0.0f, transform.bFlipU ? 1.0f : 0.0f, 0.0f);
 	pGDevice->SetShaderUniform("u_flags", fvec.Ptr());
 
 	vec4 col = transform.ImageColor.ToVec();

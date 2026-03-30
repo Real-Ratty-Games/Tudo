@@ -31,6 +31,7 @@ namespace Tudo
 
 		// For GPU friendly textures
 		// DDS on Windows and KTX on macOS
+		// Supports Cubemaps
 		void LoadTextureGPUFromFile(Texture& texture, strgv filename, uint64 flags, strgv texturename);
 		void LoadTextureGPUFromMemory(Texture& texture, const std::vector<uint8>& memData, uint64 flags, strgv texturename);
 

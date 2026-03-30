@@ -40,7 +40,7 @@ bool GameProgram::Initialize()
 	mPipeline = new GamePipeline(*mGDevice, *mAssetLoader, resolution);
 
 	// set hw cursor
-	mAssetLoader->LoadHardwareCursorImage(mCursor, "Cursor.bmp");
+	mAssetLoader->LoadHardwareCursorImage(mCursor, "Textures/Cursor.bmp");
 	mWindow->SetHardwareCursorImage(&mCursor);
 
 	Window::DestroySplashScreen();

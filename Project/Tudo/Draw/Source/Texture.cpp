@@ -9,7 +9,8 @@ using namespace Tudo;
 
 Texture::Texture(GraphicsDevice& gdevice) : DrawObject(gdevice)
 {
-	mHandle = BGFX_INVALID_HANDLE;
+	mHandle		= BGFX_INVALID_HANDLE;
+	bIsCubemap	= false;
 }
 
 Texture::~Texture()
@@ -24,6 +25,11 @@ Texture::~Texture()
 bgfx::TextureHandle& Texture::Handle()
 {
 	return mHandle;
+}
+
+bool Texture::IsCubemap()
+{
+	return bIsCubemap;
 }
 
 const vec2i& Texture::Size()
