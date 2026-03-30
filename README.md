@@ -11,6 +11,8 @@
 
 ## 
 <img width="1280" height="750" alt="screenshot" src="https://github.com/user-attachments/assets/4e50a2ef-691c-4ba0-85ea-949875abaea0" />
+<img width="1280" height="750" alt="screenshot2" src="https://github.com/user-attachments/assets/bc4e5760-1d6c-424d-861f-edae7c6932fa" />
+
   
 ## About
 Tudo is not a full-fledged game engine in the traditional sense,
@@ -29,18 +31,24 @@ fundamental components needed for game development.
   * framebuffer managing
   * pipeline interface
   * renderer interface
+      * 3d model renderer interface
+      * basic 3d color mesh renderer
+	  * basic 3d unlit mesh renderer
+      * basic 3d skybox mesh renderer
   * advanced 2d-sprite renderer
 	  * draw color quad
 	  * draw sprite
 	  * draw sprite atlas
 	  * draw sprite instanced
-	  * draw sprite atlas instanced
 	  * draw sprite font text
+	  * draw sprite atlas instanced
 	  * draw sprite sheet animation
-  * 3d model renderer interface
-	  * basic 3d billboard renderer
-	  * basic 3d color mesh renderer
-	  * basic 3d unlit mesh renderer
+  * advanced 3d-billboard renderer
+	  * draw sprite
+	  * draw sprite atlas
+	  * draw sprite instanced
+	  * draw sprite atlas instanced
+	  * draw sprite sheet animation
 * <b>Math:</b>
   * vector 2d
   * vector 3d
