@@ -4,8 +4,11 @@
 ======================================================*/
 #include "../Include/Game.hpp"
 #include <DebugHelp.hpp>
+#include <Logger.hpp>
 
 using namespace MyGame;
+
+void RunProgram();
 
 int main()
 {
@@ -14,7 +17,13 @@ int main()
 #endif
 	DEBUGHELP_SHOWCMD(false);
 
+	RunProgram();
+	Logger::Save("EndDump.log");
+	return 0;
+}
+
+void RunProgram()
+{
 	GameProgram program;
 	program.Run();
-	return 0;
 }

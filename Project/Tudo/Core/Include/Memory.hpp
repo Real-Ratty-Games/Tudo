@@ -5,7 +5,7 @@
 #ifndef MEMORY_HPP_
 #define MEMORY_HPP_
 #include "SystemTypes.hpp"
-#include "BigError.hpp"
+#include "Logger.hpp"
 
 namespace Tudo
 {
@@ -66,7 +66,7 @@ namespace Tudo
 		T* Get() const
 		{
 			if (Null())
-				throw BigError("Memory is invalid!");
+				Logger::Log("SafePtr::Get", "Memory is invalid!", ELogType::LERROR);
 			return mPtr;
 		}
 

@@ -25,6 +25,7 @@ DrawSurface::DrawSurface(GraphicsDevice& gdevice, uint16 viewid, vec2 size, void
 
 	mFbHandle = BGFX_INVALID_HANDLE;
 
+	bgfx::setViewMode(mViewId, bgfx::ViewMode::Sequential);
 	bgfx::setViewRect(mViewId, (uint16)Location.X, (uint16)Location.Y, (uint16)Resolution.X, (uint16)Resolution.Y);
 	bgfx::setViewScissor(mViewId, (uint16)Location.X, (uint16)Location.Y, (uint16)Resolution.X, (uint16)Resolution.Y);
 	Clear();

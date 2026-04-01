@@ -3,19 +3,19 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "WADFile.hpp"
-#include "BigError.hpp"
+#include "Logger.hpp"
 #include "FileSystem.hpp"
 #include <fstream>
 #include <sstream>
 
 using namespace Tudo;
 
-void WADFile::Open(strgv filepath)
+bool WADFile::Open(strgv filepath)
 {
 	if (!FileSystem::Exists(filepath))
 	{
-		const strg errmsg = "Cannot open WAD file, file does not exist: " + strg(filepath);
-		throw BigError(errmsg);
+		Logger::Log("WADFile::Open", "Cannot open WAD file, file does not exist: " + strg(filepath), ELogType::LWARNING);
+		return false;
 	}
 	mFilepath = filepath;
 
@@ -42,25 +42,36 @@ void WADFile::Open(strgv filepath)
 		WADItem item(fileSize, fileOffset, fileType);
 		mItems.insert(std::make_pair(fileName, item));
 	}
+	return true;
 }
 
-void WADFile::Read(strgv itemname, std::vector<uint8>& data)
+bool WADFile::Read(strgv itemname, std::vector<uint8>& data)
 {
 	const strg iname(itemname);
 	if (!mItems.contains(iname))
-		throw BigError("Item " + iname + " could not be found inside: " + mFilepath);
+	{
+		Logger::Log("WADFile::Read", "Item " + iname + " could not be found inside: " + mFilepath, ELogType::LWARNING);
+		return false;
+	}
 
 	WADItem& item = mItems[iname];
 
 	std::ifstream file(mFilepath.data(), std::ios::binary);
 	if (!file)
-		throw BigError("Cannot open WAD file: " + mFilepath);
+	{
+		Logger::Log("WADFile::Read", "Cannot open WAD file: " + mFilepath, ELogType::LWARNING);
+		return false;
+	}
 
 	data.resize(item.Size);
 
 	file.seekg(static_cast<std::streampos>(item.Offset), std::ios::beg);
 	if (!file.read(reinterpret_cast<char*>(data.data()), item.Size))
-		throw BigError("Failed reading data here!");
+	{
+		Logger::Log("WADFile::Read", "Failed reading data here!", ELogType::LWARNING);
+		return false;
+	}
+	return true;
 }
 
 std::unordered_map<strg, WADItem>& WADFile::Items()

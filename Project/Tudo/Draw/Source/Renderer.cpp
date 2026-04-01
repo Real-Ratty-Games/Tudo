@@ -3,7 +3,6 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "Renderer.hpp"
-#include "BigError.hpp"
 #include "GraphicsDevice.hpp"
 #include "DrawPipeline.hpp"
 

@@ -14,6 +14,9 @@ namespace Tudo
 		void Run();
 		void Quit(bool vl = true);
 
+	private:
+		void Startup();
+
 	protected:
 		virtual bool Initialize() = 0;
 		virtual void Tick() = 0;

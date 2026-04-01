@@ -3,7 +3,6 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "DrawObject.hpp"
-#include "BigError.hpp"
 #include "GraphicsDevice.hpp"
 
 using namespace Tudo;

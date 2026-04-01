@@ -3,6 +3,7 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "Model3D.hpp"
+#include "Logger.hpp"
 #include "GraphicsDevice.hpp"
 
 using namespace Tudo;
@@ -18,9 +19,17 @@ Model3D::~Model3D()
 		if (bgfx::isValid(it.IBH))
 			bgfx::destroy(it.IBH);
 	}
+
+	if(!mName.empty())
+		Logger::Log("Model3D '" + mName + "' released!");
 }
 
 const std::vector<Mesh3D>& Model3D::Meshes() const
 {
 	return mMeshes;
+}
+
+strg Model3D::Name()
+{
+	return mName;
 }

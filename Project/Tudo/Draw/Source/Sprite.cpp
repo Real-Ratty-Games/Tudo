@@ -3,7 +3,6 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "Sprite.hpp"
-#include "BigError.hpp"
 #include "Texture.hpp"
 
 using namespace Tudo;

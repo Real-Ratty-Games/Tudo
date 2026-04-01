@@ -13,12 +13,14 @@ namespace Tudo
 	{
 	public:
 		~WindowCursor();
+		strg Name();
 
 		friend class Window;
 		friend class AssetLoader;
 
 	private:
 		SDL_Cursor* mCursor;
+		strg		mName;
 	};
 }
 #endif

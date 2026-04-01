@@ -3,6 +3,7 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "DrawSurface3D.hpp"
+#include "Logger.hpp"
 #include "GraphicsDevice.hpp"
 #include "Texture.hpp"
 
@@ -10,8 +11,7 @@ using namespace Tudo;
 
 DrawSurface3D::DrawSurface3D(GraphicsDevice& gdevice, uint16 viewid, vec2 size, void* wndHandle, bool depthOnly) : DrawSurface(gdevice, viewid, size, wndHandle)
 {
-	bDepthOnly = depthOnly;
-
+	bDepthOnly	= depthOnly;
 	mFbDepthTex = new Texture(*pGDevice);
 
 	if (viewid != 0)
@@ -20,7 +20,7 @@ DrawSurface3D::DrawSurface3D(GraphicsDevice& gdevice, uint16 viewid, vec2 size, 
 		SetFBViewId();
 	}
 
-	bgfx::setViewMode(mViewId, bgfx::ViewMode::DepthDescending);
+	Logger::Log("New DrawSurface3D created!");
 }
 
 Texture* DrawSurface3D::GetDepthTexture()

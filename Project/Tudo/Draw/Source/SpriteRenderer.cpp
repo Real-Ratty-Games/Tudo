@@ -12,29 +12,26 @@
 
 using namespace Tudo;
 
-SpriteRenderer::SpriteRenderer(GraphicsDevice& gdevice, DrawPipeline& pipeline) : Renderer(gdevice, pipeline)
+SpriteRenderer::SpriteRenderer(GraphicsDevice& gdevice, DrawPipeline& pipeline) : Renderer(gdevice, pipeline) {}
+
+void SpriteRenderer::DrawSprite(Sprite& sprite, const Transform2D& transform)
 {
-	pQuad2DLastTex = nullptr;
+	DrawTexture(sprite.GetTexture(), sprite.RotationPivot, sprite.Size, transform);
 }
 
-void SpriteRenderer::DrawSprite(Sprite& sprite, const Transform2D& transformation)
-{
-	DrawTexture(sprite.GetTexture(), sprite.RotationPivot, sprite.Size, transformation);
-}
-
-void SpriteRenderer::DrawSpriteAtlas(Sprite& sprite, const TransformAtlas2D& transformation, vec2 subSize)
+void SpriteRenderer::DrawSpriteAtlas(Sprite& sprite, const TransformAtlas2D& transform, vec2 subSize)
 {
 	vec4 atinf[2];
-	atinf[0] = vec4(transformation.Index.X, transformation.Index.Y, sprite.Size.X, sprite.Size.Y);
+	atinf[0] = vec4(transform.Index.X, transform.Index.Y, sprite.Size.X, sprite.Size.Y);
 	atinf[1] = vec4(subSize.X, subSize.Y, 1.0f, 0.0f);
-	pPipeline->GetActiveShader()->SetUniform("atlasInfo", atinf, 2);
-	DrawTexture(sprite.GetTexture(), sprite.RotationPivot, subSize, transformation);
+	pGDevice->SetShaderUniform("u_atlasInfo", atinf, 2);
+	DrawTexture(sprite.GetTexture(), sprite.RotationPivot, subSize, transform);
 }
 
 void SpriteRenderer::PrepareSpriteInstancing(Sprite& sprite, SpriteInstanceData& idata, const std::vector<Transform2D>& tdata)
 {
 	const int insCnt = (int)tdata.size();
-	const uint16 insStride = 64 + sizeof(vec4);
+	const uint16 insStride = sizeof(mat4) + sizeof(vec4);
 	uint drawnIns = bgfx::getAvailInstanceDataBuffer(insCnt, insStride);
 
 	idata.MissedAmount = insCnt - drawnIns;
@@ -62,10 +59,8 @@ void SpriteRenderer::PrepareSpriteInstancing(Sprite& sprite, SpriteInstanceData&
 		mdl = Math::Translate(mdl, -rotPiv, false);																// move pivot back
 		mdl = Math::Scale(mdl, vec3(rscale.X, rscale.Y, 1.0f), false);											// scale
 
-
-		const float* _mtx = mdl.Ptr();
-		Memory::Copy(data, _mtx, insStride);
-		data += 64;
+		Memory::Copy(data, mdl.Ptr(), sizeof(mat4));
+		data += sizeof(mat4);
 
 		vec4 color = transf.ImageColor.ToVec();
 		Memory::Copy(data, color.Ptr(), sizeof(vec4));
@@ -76,7 +71,7 @@ void SpriteRenderer::PrepareSpriteInstancing(Sprite& sprite, SpriteInstanceData&
 void SpriteRenderer::PrepareSpriteAtlasInstancing(Sprite& sprite, SpriteInstanceData& idata, const std::vector<TransformAtlas2D>& tdata, vec2 subSize)
 {
 	const int insCnt = (int)tdata.size();
-	const uint16 insStride = 64 + sizeof(vec4);
+	const uint16 insStride = sizeof(mat4) + sizeof(vec4);
 	uint drawnIns = bgfx::getAvailInstanceDataBuffer(insCnt, insStride);
 
 	idata.MissedAmount = insCnt - drawnIns;
@@ -112,9 +107,8 @@ void SpriteRenderer::PrepareSpriteAtlasInstancing(Sprite& sprite, SpriteInstance
 		vec4& csp2 = *((vec4*)(&mdl.Data[4]));
 		csp2.Z = transf.ImageColor.A;
 
-		const float* _mtx = mdl.Ptr();
-		Memory::Copy(data, _mtx, insStride);
-		data += 64;
+		Memory::Copy(data, mdl.Ptr(), sizeof(mat4));
+		data += sizeof(mat4);
 
 		vec4 color = vec4(transf.Index.X, transf.Index.Y, transf.ImageColor.R, transf.ImageColor.G);
 		Memory::Copy(data, color.Ptr(), sizeof(vec4));
@@ -128,13 +122,7 @@ void SpriteRenderer::DrawSpriteInstanced(const SpriteInstanceData& idata)
 
 	bgfx::setState(TUDO_RENDERER_SPRITE_STATE);
 	bgfx::setInstanceDataBuffer(&idata.Buffer);
-
-	Texture* usetex = idata.pSprite->GetTexture();
-	if (pQuad2DLastTex != usetex)
-	{
-		pQuad2DLastTex = usetex;
-		shader->SetTexture(0, "s_texColor", *usetex);
-	}
+	pGDevice->SetShaderTexture(0, "s_texColor", *idata.pSprite->GetTexture());
 
 	shader->Submit(pPipeline->GetActiveDrawSurface()->ViewID(), TUDO_RENDERER_SPRITE_FLAGS, true);
 }
@@ -144,22 +132,22 @@ void SpriteRenderer::DrawSpriteAtlasInstanced(const SpriteInstanceData& idata, S
 	vec4 atinf[2];
 	atinf[0] = vec4(0.0f, 0.0f, sprite.Size.X, sprite.Size.Y);
 	atinf[1] = vec4(subSize.X, subSize.Y, 1.0f, 0.0f);
-	pPipeline->GetActiveShader()->SetUniform("atlasInfo", atinf, 2);
+	pGDevice->SetShaderUniform("u_atlasInfo", atinf, 2);
 	DrawSpriteInstanced(idata);
 }
 
-void SpriteRenderer::PrepareSpriteFontText(const SpriteFont& font, const Transform2D& transformation, SpriteInstanceData& idata, strgv text)
+void SpriteRenderer::PrepareSpriteFontText(const SpriteFont& font, const Transform2D& transform, SpriteInstanceData& idata, strgv text)
 {
 	std::vector<TransformAtlas2D> tdata;
 
-	vec2 cursor = transformation.Location;
+	vec2 cursor = transform.Location;
 	for (auto& it : text)
 	{
 		TransformAtlas2D result;
 		result.Location = cursor;
-		result.Rotation = transformation.Rotation;
-		result.Scale = transformation.Scale;
-		result.ImageColor = transformation.ImageColor;
+		result.Rotation = transform.Rotation;
+		result.Scale = transform.Scale;
+		result.ImageColor = transform.ImageColor;
 
 		if (it == ' ')
 		{
@@ -168,7 +156,7 @@ void SpriteRenderer::PrepareSpriteFontText(const SpriteFont& font, const Transfo
 		}
 		else if (it == '\n')
 		{
-			cursor.X = transformation.Location.X;
+			cursor.X = transform.Location.X;
 			cursor.Y += font.GlyphSize.Y;
 			continue;
 		}
@@ -191,16 +179,16 @@ void SpriteRenderer::DrawSpriteFontText(const SpriteFont& font, const SpriteInst
 	DrawSpriteAtlasInstanced(idata, *font.pSprite, font.GlyphSize);
 }
 
-void SpriteRenderer::DrawSpriteFontText(const SpriteFont& font, const Transform2D& transformation, strgv text)
+void SpriteRenderer::DrawSpriteFontText(const SpriteFont& font, const Transform2D& transform, strgv text)
 {
-	vec2 cursor = transformation.Location;
+	vec2 cursor = transform.Location;
 	for (auto& it : text)
 	{
 		TransformAtlas2D result;
 		result.Location = cursor;
-		result.Rotation = transformation.Rotation;
-		result.Scale = transformation.Scale;
-		result.ImageColor = transformation.ImageColor;
+		result.Rotation = transform.Rotation;
+		result.Scale = transform.Scale;
+		result.ImageColor = transform.ImageColor;
 
 		if (it == ' ')
 		{
@@ -209,7 +197,7 @@ void SpriteRenderer::DrawSpriteFontText(const SpriteFont& font, const Transform2
 		}
 		else if (it == '\n')
 		{
-			cursor.X = transformation.Location.X;
+			cursor.X = transform.Location.X;
 			cursor.Y += font.GlyphSize.Y;
 			continue;
 		}
@@ -225,30 +213,25 @@ void SpriteRenderer::DrawSpriteFontText(const SpriteFont& font, const Transform2
 	}
 }
 
-void SpriteRenderer::DrawSpriteAnimation(Sprite& sprite, const Transform2D& transformation, const SpriteAnimator& animator)
+void SpriteRenderer::DrawSpriteAnimation(Sprite& sprite, const Transform2D& transform, const SpriteAnimator& animator)
 {
 	TransformAtlas2D transf;
-	transf.Location = transformation.Location;
-	transf.Rotation = transformation.Rotation;
-	transf.Scale = transformation.Scale;
-	transf.ImageColor = transformation.ImageColor;
+	transf.Location = transform.Location;
+	transf.Rotation = transform.Rotation;
+	transf.Scale = transform.Scale;
+	transf.ImageColor = transform.ImageColor;
 	transf.Index = animator.GetCurrentIndex();
 	DrawSpriteAtlas(sprite, transf, animator.GetAnimation()->FrameSize);
 }
 
-void SpriteRenderer::DrawColorQuad(const Transform2D& transformation, vec2 rotpiv, vec2 size)
+void SpriteRenderer::DrawColorQuad(const Transform2D& transform, vec2 rotpiv, vec2 size)
 {
-	pGDevice->DrawTexture(*pPipeline->GetActiveShader(), *pPipeline->GetActiveDrawSurface(), rotpiv, size, transformation);
+	pGDevice->DrawTexture(*pPipeline->GetActiveShader(), *pPipeline->GetActiveDrawSurface(), rotpiv, size, transform);
 }
 
-void SpriteRenderer::DrawTexture(Texture* texture, vec2 rotpiv, vec2 size, const Transform2D& transformation)
+void SpriteRenderer::DrawTexture(Texture* texture, vec2 rotpiv, vec2 size, const Transform2D& transform)
 {
 	Shader* shader = pPipeline->GetActiveShader();
-
-	if (pQuad2DLastTex != texture)
-	{
-		pQuad2DLastTex = texture;
-		shader->SetTexture(0, "s_texColor", *texture);
-	}
-	pGDevice->DrawTexture(*shader, *pPipeline->GetActiveDrawSurface(), rotpiv, size, transformation);
+	pGDevice->SetShaderTexture(0, "s_texColor", *texture);
+	pGDevice->DrawTexture(*shader, *pPipeline->GetActiveDrawSurface(), rotpiv, size, transform);
 }

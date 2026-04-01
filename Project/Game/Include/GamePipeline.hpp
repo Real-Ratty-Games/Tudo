@@ -6,12 +6,17 @@
 #define GAMEPIPELINE_HPP_
 #include <SystemTypes.hpp>
 #include <Memory.hpp>
+#include <Shader.hpp>
 #include <AssetLoader.hpp>
 #include <DrawPipeline.hpp>
 #include <GraphicsDevice.hpp>
-#include <SpriteRenderer.hpp>
 #include <DrawSurface2D.hpp>
-#include <Shader.hpp>
+
+#include <SpriteRenderer.hpp>
+#include <UnlitModelRenderer.hpp>
+#include <ColorModelRenderer.hpp>
+#include <BillboardRenderer.hpp>
+#include <SkyboxModelRenderer.hpp>
 
 using namespace Tudo;
 
@@ -21,24 +26,41 @@ namespace MyGame
 	{
 	public:
 		GamePipeline(GraphicsDevice& gdevice, AssetLoader& assetloader, vec2 resolution);
-		void Draw();
 		void OnResize(vec2 size);
+
+	protected:
+		void Draw();
 
 	private:
 		void LoadShaders(AssetLoader& assetloader);
 
 	private:
-		Viewport2D					mCamera;
+		Viewport2D						mCamera;
 
-		SafePtr<DrawSurface2D>		mBackBufferSurface;
+		SafePtr<DrawSurface2D>			mBackBufferSurface;
 
-		SafePtr<SpriteRenderer>		mSpriteRenderer;
+		SafePtr<SpriteRenderer>			mSpriteRenderer;
+		SafePtr<UnlitModelRenderer>		mUnlitRenderer;
+		SafePtr<ColorModelRenderer>		mColorModelRenderer;
+		SafePtr<BillboardRenderer>		mBillboardRenderer;
+		SafePtr<SkyboxModelRenderer>	mSkyboxModelRenderer;
 
-		SafePtr<Shader>				mSprite2DShader;
-		SafePtr<Shader>				mSprite2DIShader;
-		SafePtr<Shader>				mSprite2DAtlasShader;
-		SafePtr<Shader>				mSprite2DAtlasIShader;
-		SafePtr<Shader>				mColorQuadShader;
+		SafePtr<Shader>					mSprite2DShader;
+		SafePtr<Shader>					mSprite2DIShader;
+		SafePtr<Shader>					mSprite2DAtlasShader;
+		SafePtr<Shader>					mSprite2DAtlasIShader;
+		SafePtr<Shader>					mColorQuadShader;
+
+		SafePtr<Shader>					mUnlitMeshShader;
+		SafePtr<Shader>					mUnlitMeshIShader;
+		SafePtr<Shader>					mColorMeshShader;
+		SafePtr<Shader>					mColorMeshIShader;
+		SafePtr<Shader>					mBillboardShader;
+		SafePtr<Shader>					mBillboardIShader;
+		SafePtr<Shader>					mBillboardAtlasShader;
+		SafePtr<Shader>					mBillboardAtlasIShader;
+		SafePtr<Shader>					mSkyboxMeshShader;
+		SafePtr<Shader>					mSkyboxMeshIShader;
 	};
 }
 #endif
