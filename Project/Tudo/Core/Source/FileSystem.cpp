@@ -3,7 +3,9 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "FileSystem.hpp"
+#if !TUDO_NO_LOGGER
 #include "Logger.hpp"
+#endif
 #include <filesystem>
 #include <fstream>
 
@@ -22,7 +24,9 @@ void FileSystem::FileRemove(strgv filepath)
 {
 	strg fp(filepath);
 	std::filesystem::remove(fp);
+#if !TUDO_NO_LOGGER
 	Logger::Log("File removed '" + fp + "'");
+#endif
 }
 
 std::vector<strg> FileSystem::FilesInDirectory(strgv dir, int nt)
@@ -70,14 +74,18 @@ void FileSystem::DirectoryCreate(strgv dir)
 {
 	strg dr(dir);
 	std::filesystem::create_directory(dr);
+#if !TUDO_NO_LOGGER
 	Logger::Log("Directory created '" + dr + "'");
+#endif
 }
 
 void FileSystem::DirectoryRemove(strgv dir)
 {
 	strg dr(dir);
 	std::filesystem::remove_all(dr);
+#if !TUDO_NO_LOGGER
 	Logger::Log("Directory removed '" + dr + "'");
+#endif
 }
 
 std::vector<char> FileSystem::ReadBinaryFile(strgv filepath)
@@ -101,7 +109,9 @@ void FileSystem::WriteBinaryFile(strgv filepath, const std::vector<char>& data)
 	std::ofstream file(fp, std::ios::binary);
 	file.write(data.data(), data.size());
 	file.close();
+#if !TUDO_NO_LOGGER
 	Logger::Log("Binary file written '" + fp + "'");
+#endif
 }
 
 void FileSystem::WriteTextFile(strgv filepath, strgv text)
@@ -110,7 +120,9 @@ void FileSystem::WriteTextFile(strgv filepath, strgv text)
 	std::ofstream file(fp);
 	file.write(text.data(), text.size());
 	file.close();
+#if !TUDO_NO_LOGGER
 	Logger::Log("Text file written '" + fp + "'");
+#endif
 }
 
 std::filesystem::path FileSystem::GetResourcePath(strgv filename)

@@ -64,6 +64,8 @@ else()
 	target_link_libraries(M3DC PRIVATE ${COREFRAMEWORK} ${IOKIT_FRAMEWORK})
 endif()
 
+add_definitions(-DTUDO_NO_LOGGER)
+
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET M3DC PROPERTY CXX_STANDARD 20)
 endif()
