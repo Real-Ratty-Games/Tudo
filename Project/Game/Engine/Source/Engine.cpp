@@ -38,7 +38,7 @@ bool Engine::Initialize()
 	mPipeline = new EnginePipeline(*mGDevice, *mAssetLoader, res);
 
 	mWorld = new World();
-	mWorld->GetActorFactory().Register<StaticModel>("StaticModel");
+	RegisterActors();
 
 	Window::DestroySplashScreen();
 	mWindow->Show();
@@ -80,4 +80,9 @@ void Engine::Cleanup()
 	TUDO_MEM_FREE(mWindow);
 
 	Window::Release();
+}
+
+void Engine::RegisterActors()
+{
+	mWorld->GetActorFactory().Register<StaticModel>("StaticModel");
 }

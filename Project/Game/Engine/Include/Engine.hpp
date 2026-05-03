@@ -45,6 +45,9 @@ protected:
 	void Cleanup();
 
 private:
+	void RegisterActors();
+
+private:
 	Clock			mClock;
 	Input			mInput;
 
