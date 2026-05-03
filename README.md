@@ -1,4 +1,4 @@
-<img width="550" height="350" alt="tudo" src="tudo.png" />   
+ # Tudo Engine
 
 - [About](#about)
 - [Features](#features)
@@ -8,18 +8,12 @@
 - [SHDC](#shdc)
 - [M3DC](#m3dc)
 - [Third-party libraries used](#third-party-libraries-used)
-
-## 
-<img width="1280" height="750" alt="screenshot" src="https://github.com/user-attachments/assets/4e50a2ef-691c-4ba0-85ea-949875abaea0" />
   
 ## About
-Tudo is not a full-fledged game engine in the traditional sense,
-but rather a minimal engine skeleton that supplies only the
-fundamental components needed for game development.
+Tudo game engine middleware.
 
 ## Features
 * <b>Core:</b>
-  * simple smart pointer
   * ini file reading/writing
   * alarm driven event system
   * fixed-timestep clock
@@ -29,7 +23,7 @@ fundamental components needed for game development.
   * framebuffer managing
   * pipeline interface
   * renderer interface
-  * advanced 2d-sprite renderer
+  * advanced 2d-sprite/3d-billboard renderer
 	  * draw color quad
 	  * draw sprite
 	  * draw sprite atlas
@@ -38,7 +32,6 @@ fundamental components needed for game development.
 	  * draw sprite font text
 	  * draw sprite sheet animation
   * 3d model renderer interface
-	  * basic 3d billboard renderer
 	  * basic 3d color mesh renderer
 	  * basic 3d unlit mesh renderer
 * <b>Math:</b>
@@ -47,6 +40,7 @@ fundamental components needed for game development.
   * vector 4d
   * matrix 4x4
   * quaternion
+  * 2d mesh triangulation
   * transformation
   	* translate
   	* scale
@@ -76,6 +70,9 @@ fundamental components needed for game development.
   * simple binary archive
   * 3d model loading (custom gpu-friendly format)
   * automatic texture mipmap generation
+* <b>Engine:</b>
+  * Actor
+  * World
  
 ## Building
 
@@ -105,13 +102,13 @@ is copied into the application’s Resources directory.
 
 The solution is split into two projects: Tudo and Game.
 
-Tudo is a static library, while Game is the main project where the
+Tudo is a static library with all the systems, while Game is the main project where the
 game is built on top of it.
 
 ## Engine Design
 
 The engine is designed to be highly modular. You are responsible
-for implementing your own scene management and graphics pipeline.
+for implementing your own scene management and graphics pipeline (or build on top of the existing Actor/World system).
 Create a DrawPipeline interface and use the existing renderer
 classes (or implement your own) to draw primitives.
 
