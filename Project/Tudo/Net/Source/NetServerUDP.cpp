@@ -3,7 +3,6 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "NetServerUDP.hpp"
-#include "BigError.hpp"
 #include "Network.hpp"
 
 using namespace Tudo;

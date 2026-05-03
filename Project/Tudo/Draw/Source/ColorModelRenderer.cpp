@@ -15,14 +15,20 @@ ColorModelRenderer::ColorModelRenderer(GraphicsDevice& gdevice, DrawPipeline& pi
 void ColorModelRenderer::DrawMesh(const Mesh3D& mesh)
 {
 	Shader* shader = pPipeline->GetActiveShader();
-
 	bgfx::setState(TUDO_RENDERER_MESH_DEFAULT_STATE);
 
-	pGDevice->SetMesh(0, mesh);
-
 	vec4 color = mColor.ToVec();
-	shader->SetUniform("color", color.Ptr());
+	pGDevice->SetShaderUniform("u_color", color.Ptr());
 
+	pGDevice->SetMesh(0, mesh);
+	shader->Submit(pPipeline->GetActiveDrawSurface()->ViewID(), TUDO_RENDERER_MESH_DEFAULT_DISCARD, true);
+}
+
+void ColorModelRenderer::DrawMeshInstanced(const Mesh3D& mesh)
+{
+	Shader* shader = pPipeline->GetActiveShader();
+	bgfx::setState(TUDO_RENDERER_MESH_DEFAULT_STATE);
+	pGDevice->SetMesh(0, mesh);
 	shader->Submit(pPipeline->GetActiveDrawSurface()->ViewID(), TUDO_RENDERER_MESH_DEFAULT_DISCARD, true);
 }
 

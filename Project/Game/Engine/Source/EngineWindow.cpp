@@ -2,17 +2,15 @@
 	Copyright (c) 2026 Real Ratty Games.
 	Created by Norbert Gerberg.
 ======================================================*/
-#include "../Include/GameWindow.hpp"
-#include "../Include/Game.hpp"
+#include "EngineWindow.hpp"
+#include "Engine.hpp"
 
-using namespace MyGame;
-
-GameWindow::GameWindow(Program* program)
+EngineWindow::EngineWindow(Program* program)
 {
 	pProgram = program;
 }
 
-void GameWindow::EventCallback()
+void EngineWindow::EventCallback()
 {
 	switch (mWndEvent.type)
 	{
@@ -22,7 +20,7 @@ void GameWindow::EventCallback()
 	case SDL_EVENT_WINDOW_RESIZED:
 	{
 		vec2i size = GetSize();
-		dynamic_cast<GameProgram*>(pProgram)->OnResize(size);
+		dynamic_cast<Engine*>(pProgram)->OnResize(size);
 	}break;
 	}
 }

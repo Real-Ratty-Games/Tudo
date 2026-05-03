@@ -4,13 +4,21 @@
 --------------------------------------------------------
 	Valid Arguments:
 	<shader path> <dev path>
+	
+	for default Path:
+	-d
 ======================================================*/
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include "SystemTypes.hpp"
+
+#define TUDO_NO_LOGGER
 #include "FileSystem.hpp"
+
+#define SHDC_DEFAULT_SHADERPATH "Data/Shaders"
+#define SHDC_DEFAULT_DEVPATH	"Data/Development/Shaders"
 
 using namespace Tudo;
 
@@ -19,10 +27,25 @@ static strg CompileAllShaders(strgv sdir, strgv dir);
 
 int main(int argc, char* argv[])
 {
+	bool ready		= false;
+	strg shdpath	= SHDC_DEFAULT_SHADERPATH;
+	strg devpath	= SHDC_DEFAULT_DEVPATH;
+
 	if (argc == 3)
 	{
-		const strg shdpath(argv[1]);
+		ready	= true;
+		shdpath = strg(argv[1]);
+		devpath = strg(argv[2]);
+	}
+	else if (argc == 2)
+	{
+		if (strg(argv[1]) == "-d") ready = true;
+		else std::cout << "Invalid Argument" << std::endl;
+	}
+	else std::cout << "Invalid Arguments" << std::endl;
 
+	if (ready)
+	{
 		if (!FileSystem::Exists(shdpath))
 			FileSystem::DirectoryCreate(shdpath);
 
@@ -41,9 +64,8 @@ int main(int argc, char* argv[])
 			FileSystem::DirectoryCreate(mtpath);
 #endif
 
-		std::cout << CompileAllShaders(shdpath, argv[2]) << std::endl;
+		std::cout << CompileAllShaders(shdpath, devpath) << std::endl;
 	}
-	else std::cout << "Invalid Arguments" << std::endl;
 	return 0;
 }
 

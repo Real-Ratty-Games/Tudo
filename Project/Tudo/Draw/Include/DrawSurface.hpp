@@ -5,7 +5,6 @@
 #ifndef DRAWSURFACE_HPP_
 #define DRAWSURFACE_HPP_
 #include "SystemTypes.hpp"
-#include "Memory.hpp"
 #include "DrawObject.hpp"
 #include "DrawData.hpp"
 
@@ -22,11 +21,11 @@ namespace Tudo
 		void Clear();
 		void OnResize(vec2 size);
 		uint16 ViewID() const;
-		Texture* GetTexture();
+		Texture& GetTexture();
 
 	protected:
-		void DestroyFB();
 		void SetFBViewId();
+		virtual void DestroyFB();
 		virtual void UpdateFB(vec2i texSize, bgfx::TextureFormat::Enum format = bgfx::TextureFormat::RGBA8) = 0;
 
 	public:
@@ -39,7 +38,7 @@ namespace Tudo
 
 	protected:
 		bgfx::FrameBufferHandle mFbHandle;
-		SafePtr<Texture>		mFbTex;
+		Texture*				mFbTex;
 
 		uint16					mViewId;
 		void*					pWindowHandle;

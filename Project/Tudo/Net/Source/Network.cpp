@@ -4,7 +4,7 @@
 ======================================================*/
 #include "Network.hpp"
 #include "SystemTypes.hpp"
-#include "BigError.hpp"
+#include "Logger.hpp"
 #ifdef _WIN32
 #include <ws2tcpip.h>
 #pragma comment(lib, "Ws2_32.lib")
@@ -24,8 +24,9 @@ void Network::Initialize()
 	uint16 vreq = MAKEWORD(2, 2);
 	wsaerr = WSAStartup(vreq, &wsadata);
 	if (wsaerr != 0)
-		throw BigError("Error: Winsock DLL not found!");
+		Logger::Log("Network::Initialize", "Error: Winsock DLL not found!", ELogType::LERROR);
 #endif
+	Logger::Log("Network successfully initialized!");
 }
 
 void Network::Release()
@@ -33,6 +34,7 @@ void Network::Release()
 #if _WIN32
 	WSACleanup();
 #endif
+	Logger::Log("Network released!");
 }
 
 void Network::SetSocketNB(NetSocket& socket)

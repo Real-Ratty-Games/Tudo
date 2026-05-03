@@ -22,12 +22,15 @@ namespace Tudo
 		static bool IsSDLInit();
 
 		static void SetHardwareCursorImage(WindowCursor* cursor);
+		static void SetCursor(SDL_SystemCursor id);
 		static void ShowMessageBox(SDL_MessageBoxFlags flags, strgv header, strgv message, Window* window = nullptr);
 
-		void Create(strgv title, uint width, uint height, bool fs);
+		void Create(strgv title, uint width, uint height, bool resizable, bool fs);
 		void Show(bool vl = true);
 		void PollEvent();
 		void Destroy();
+
+		void WarpMouseInWindow(float x, float y);
 
 		bool IsIconified();
 
@@ -41,6 +44,8 @@ namespace Tudo
 
 		/// Returns native OS window handle
 		void* GetNativePtr();
+
+		friend class Input;
 
 	protected:
 		virtual void EventCallback() = 0;

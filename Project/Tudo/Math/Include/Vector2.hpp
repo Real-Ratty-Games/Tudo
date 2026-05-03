@@ -76,6 +76,17 @@ namespace Tudo
 			return left.X * right.X + left.Y * right.Y;
 		}
 
+		static inline T Cross(const Vector2<T>& a, const Vector2<T>& b, const Vector2<T>& c)
+		{
+			return (b.X - a.X) * (c.Y - a.Y) - (b.Y - a.Y) * (c.X - a.X);
+		}
+
+		/// Simple point-in-triangle test
+		static inline T Sign(const Vector2<T>& a, const Vector2<T>& b, const Vector2<T>& c)
+		{
+			return (a.X - c.X) * (b.Y - c.Y) - (b.X - c.X) * (a.Y - c.Y);
+		}
+
 		Vector2<T> operator-() const
 		{
 			return Vector2<T>(-X, -Y);

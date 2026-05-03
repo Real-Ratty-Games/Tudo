@@ -3,7 +3,6 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "NetClientUDP.hpp"
-#include "BigError.hpp"
 
 using namespace Tudo;
 

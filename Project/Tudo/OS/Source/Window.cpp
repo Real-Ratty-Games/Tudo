@@ -4,7 +4,7 @@
 ======================================================*/
 #include "Window.hpp"
 #include "FileSystem.hpp"
-#include "BigError.hpp"
+#include "Logger.hpp"
 #include "WindowCursor.hpp"
 
 using namespace Tudo;
@@ -17,27 +17,23 @@ bool			Window::sbSDLInit			= false;
 void Window::Initialize()
 {
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
-	{
-		const strg errmsg = "Failed initializing SDL3: " + strg(SDL_GetError());
-		throw BigError(errmsg);
-	}
+		Logger::Log("Window::Initialize", "Failed initializing SDL3: " + strg(SDL_GetError()), ELogType::LERROR);
 	sbSDLInit = true;
+	Logger::Log("SDL3 successfully initialized!");
 }
 
 void Window::Release()
 {
 	sbSDLInit = false;
 	SDL_Quit();
+	Logger::Log("SDL3 released!");
 }
 
 void Window::ShowSplashScreen(strgv filename)
 {
 	const strg filePath = FileSystem::GetResourcePath(filename).string();
 	if (!FileSystem::Exists(filePath))
-	{
-		const strg errmsg = "File does not exist: " + strg(filename);
-		throw BigError(errmsg);
-	}
+		Logger::Log("Window::ShowSplashScreen", "File does not exist: " + strg(filename), ELogType::LERROR);
 
 	SDL_Surface* surface = SDL_LoadBMP(filePath.data());
 
@@ -66,6 +62,12 @@ void Window::SetHardwareCursorImage(WindowCursor* cursor)
 	SDL_SetCursor(cur);
 }
 
+void Window::SetCursor(SDL_SystemCursor id)
+{
+	SDL_Cursor* cur = SDL_CreateSystemCursor(id);
+	SDL_SetCursor(cur);
+}
+
 void Window::ShowMessageBox(SDL_MessageBoxFlags flags, strgv header, strgv message, Window* window)
 {
 	SDL_ShowSimpleMessageBox(flags, header.data(), message.data(), (window == nullptr) ? nullptr : window->mWndHandle);
@@ -88,26 +90,27 @@ bool Window::IsSDLInit()
 	return sbSDLInit;
 }
 
-void Window::Create(strgv title, uint width, uint height, bool fs)
+void Window::Create(strgv title, uint width, uint height, bool resizable, bool fs)
 {
 	bFullscreen = fs;
-    
+
     SDL_WindowFlags wflags = ((fs ? SDL_WINDOW_FULLSCREEN : 0) | SDL_WINDOW_HIDDEN);
 #if __APPLE__
     wflags |= SDL_WINDOW_METAL;
 #endif
     
+	if (resizable) wflags |= SDL_WINDOW_RESIZABLE;
+
 	if ((mWndHandle = SDL_CreateWindow(title.data(), (int)width, (int)height, wflags)) == nullptr)
-	{
-		const strg errmsg = "Failed creating window: " + strg(SDL_GetError());
-		throw BigError(errmsg);
-	}
+		Logger::Log("Window::Create", "Failed creating window: " + strg(SDL_GetError()), ELogType::LERROR);
     
 #if __APPLE__
     SDL_Renderer* mrenderer = SDL_CreateRenderer(mWndHandle, "Metal");
     if (!mrenderer)
-        throw BigError("Failed creating SDL renderer: " + strg(SDL_GetError()));
+		Logger::Log("Window::Create", "Failed creating SDL renderer: " + strg(SDL_GetError()), ELogType::LERROR);
 #endif
+
+	Logger::Log("New Window created!");
 }
 
 void Window::Show(bool vl)
@@ -124,6 +127,11 @@ void Window::PollEvent()
 void Window::Destroy()
 {
 	SDL_DestroyWindow(mWndHandle);
+}
+
+void Window::WarpMouseInWindow(float x, float y)
+{
+	SDL_WarpMouseInWindow(mWndHandle, x, y);
 }
 
 bool Window::IsIconified()
@@ -174,5 +182,5 @@ void* Window::GetNativePtr()
     SDL_Renderer* mrenderer = SDL_GetRenderer(mWndHandle);
     return SDL_GetRenderMetalLayer(mrenderer);
 #endif
-    throw BigError("Invalid Platform!");
+	Logger::Log("Window::GetNativePtr", "Invalid Platform!", ELogType::LERROR);
 }

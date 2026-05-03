@@ -2,10 +2,11 @@
 	Copyright (c) 2026 Real Ratty Games.
 	Created by Norbert Gerberg.
 ======================================================*/
-#include "../Include/Game.hpp"
+#include "Engine.hpp"
 #include <DebugHelp.hpp>
+#include <Logger.hpp>
 
-using namespace MyGame;
+using namespace Tudo;
 
 int main()
 {
@@ -14,7 +15,10 @@ int main()
 #endif
 	DEBUGHELP_SHOWCMD(false);
 
-	GameProgram program;
-	program.Run();
+	{
+		Engine engine;
+		engine.Run();
+	}
+	Logger::Save("EndDump.log");
 	return 0;
 }

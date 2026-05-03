@@ -7,15 +7,15 @@
 
 using namespace Tudo;
 
-Clock::Clock(double framerate)
+Clock::Clock(double framerate) : 
+	mDeltaTime(0.0),
+	mLastFrame(0.0),
+	mSpeed(1.0),
+	mAccumulatedTime(0.0),
+	mFixedTime(1.0 / framerate),
+	bFirstTick(true)
 {
-	mDeltaTime = 0.0;
-	mLastFrame = 0.0;
-	mSpeed = 1.0;
-	mAccumulatedTime = 0.0;
 	mFreq = SDL_GetPerformanceFrequency();
-	mFixedTime = (1.0 / framerate);
-	bFirstTick = true;
 }
 
 void Clock::Tick()

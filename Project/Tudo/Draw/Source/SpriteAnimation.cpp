@@ -7,13 +7,13 @@
 
 using namespace Tudo;
 
-SpriteAnimator::SpriteAnimator()
+SpriteAnimator::SpriteAnimator() :
+	pAnimation(nullptr),
+	mCurrentFrame(0),
+	mCurrentIndex(vec2(0)),
+	mFrameMul(1),
+	bAnimationFinished(false)
 {
-	pAnimation = nullptr;
-	mCurrentFrame = 0;
-	mCurrentIndex = vec2(0);
-	mFrameMul = 1;
-	bAnimationFinished = false;
 	mAlarm.PushModule("AdvanceFrame", TUDO_ALARM_BIND(SpriteAnimator::AdvanceFrame), TUDO_ALARM_DISABLE);
 }
 

@@ -11,8 +11,32 @@ using namespace Tudo;
 
 ModelRenderer::ModelRenderer(GraphicsDevice& gdevice, DrawPipeline& pipeline) : Renderer(gdevice, pipeline) {}
 
-void ModelRenderer::DrawModel(const Model3D& model)
+void ModelRenderer::DrawModel(const Model3D& model, const mat4& transform)
 {
 	for (auto& mesh : model.Meshes())
+	{
+		bgfx::setTransform(transform.Ptr());
 		DrawMesh(mesh);
+	}
+}
+
+void ModelRenderer::DrawModel(const Model3D& model, const mat4& transform, uint mesh)
+{
+	const uint64 mcnt = model.Meshes().size();
+	if (mesh > mcnt || mesh < 0) return;
+
+	bgfx::setTransform(transform.Ptr());
+	DrawMesh(model.Meshes()[mesh]);
+}
+
+void ModelRenderer::DrawModelInstanced(const ModelInstanceData& idata)
+{
+	bgfx::setInstanceDataBuffer(&idata.Buffer);
+	for (auto& mesh : idata.pModel->Meshes())
+		DrawMeshInstanced(mesh);
+}
+
+void ModelRenderer::DrawMeshInstanced(const Mesh3D& mesh)
+{
+	DrawMesh(mesh);
 }

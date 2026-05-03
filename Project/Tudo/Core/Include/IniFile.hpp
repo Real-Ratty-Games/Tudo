@@ -8,6 +8,8 @@
 #include <vector>
 #include <unordered_map>
 
+#define TUDO_STRING_TOBOOL(x) (x == "1" || x == "t" || x == "true") ? true : false
+
 namespace Tudo
 {
 	class IniFile

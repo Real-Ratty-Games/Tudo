@@ -45,8 +45,8 @@ namespace Tudo
 	class WADFile
 	{
 	public:
-		void								Open(strgv filepath);
-		void								Read(strgv itemname, std::vector<uint8>& data);
+		bool								Open(strgv filepath);
+		bool								Read(strgv itemname, std::vector<uint8>& data);
 		std::unordered_map<strg, WADItem>&	Items();
 		void								Clear();
 

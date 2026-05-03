@@ -3,6 +3,9 @@
     Created by Norbert Gerberg.
 ======================================================*/
 #include "IniFile.hpp"
+#if !TUDO_NO_LOGGER
+#include "Logger.hpp"
+#endif
 #include <fstream>
 #include <sstream>
 
@@ -14,11 +17,21 @@ bool IniFile::Open(strgv filename)
     mMemBuffer = nullptr;
 
     std::fstream file(mFilepath);
-    if (!file) return false;
+    if (!file)
+    {
+#if !TUDO_NO_LOGGER
+        Logger::Log("IniFile::Open", "Failed opening file '" + mFilepath + "'", ELogType::LWARNING);
+#endif
+        return false;
+    }
 
     std::ostringstream oss;
     oss << file.rdbuf();
     ReadString(oss.str());
+
+#if !TUDO_NO_LOGGER
+    Logger::Log("Ini file opened '" + mFilepath + "'");
+#endif
     return true;
 }
 
@@ -57,6 +70,9 @@ void IniFile::Close()
     if (!file) return;
     file << WriteString();
     file.close();
+#if !TUDO_NO_LOGGER
+    Logger::Log("Ini file closed '" + mFilepath + "'");
+#endif
 }
 
 strg IniFile::Trim(const strg& s)

@@ -3,7 +3,7 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "Gamepad.hpp"
-#include "BigError.hpp"
+#include "Logger.hpp"
 #include <SDL3/SDL_gamepad.h>
 
 using namespace Tudo;
@@ -11,10 +11,7 @@ using namespace Tudo;
 void Gamepad::LoadConfig()
 {
 	if (SDL_AddGamepadMappingsFromFile("Data/Gamepads.ini") == -1)
-	{
-		const strg errmsg = "Failed adding gamepad mapping: " + strg(SDL_GetError());
-		throw BigError(errmsg);
-	}
+		Logger::Log("Gamepad::LoadConfig", "Failed adding gamepad mapping: " + strg(SDL_GetError()), ELogType::LERROR);
 }
 
 Gamepad::~Gamepad()
@@ -50,7 +47,7 @@ void Gamepad::Disconnect()
 
 bool Gamepad::IsConnected()
 {
-	return SDL_GamepadConnected(mGamepadHandle);
+	return SDL_GamepadConnected(mGamepadHandle); // causes mem leak... sdl fault?
 }
 
 bool Gamepad::ButtonDown(GamepadButton button)

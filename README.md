@@ -1,4 +1,4 @@
-<img width="550" height="350" alt="tudo" src="tudo.png" />   
+ # Tudo Engine
 
 - [About](#about)
 - [Features](#features)
@@ -8,20 +8,12 @@
 - [SHDC](#shdc)
 - [M3DC](#m3dc)
 - [Third-party libraries used](#third-party-libraries-used)
-
-## 
-<img width="1280" height="750" alt="screenshot" src="https://github.com/user-attachments/assets/4e50a2ef-691c-4ba0-85ea-949875abaea0" />
-<img width="1280" height="750" alt="screenshot2" src="https://github.com/user-attachments/assets/bc4e5760-1d6c-424d-861f-edae7c6932fa" />
-
   
 ## About
-Tudo is not a full-fledged game engine in the traditional sense,
-but rather a minimal engine skeleton that supplies only the
-fundamental components needed for game development.
+Tudo game engine middleware.
 
 ## Features
 * <b>Core:</b>
-  * simple smart pointer
   * ini file reading/writing
   * alarm driven event system
   * fixed-timestep clock
@@ -31,30 +23,24 @@ fundamental components needed for game development.
   * framebuffer managing
   * pipeline interface
   * renderer interface
-      * 3d model renderer interface
-      * basic 3d color mesh renderer
-	  * basic 3d unlit mesh renderer
-      * basic 3d skybox mesh renderer
-  * advanced 2d-sprite renderer
+  * advanced 2d-sprite/3d-billboard renderer
 	  * draw color quad
 	  * draw sprite
 	  * draw sprite atlas
 	  * draw sprite instanced
+	  * draw sprite atlas instanced
 	  * draw sprite font text
-	  * draw sprite atlas instanced
 	  * draw sprite sheet animation
-  * advanced 3d-billboard renderer
-	  * draw sprite
-	  * draw sprite atlas
-	  * draw sprite instanced
-	  * draw sprite atlas instanced
-	  * draw sprite sheet animation
+  * 3d model renderer interface
+	  * basic 3d color mesh renderer
+	  * basic 3d unlit mesh renderer
 * <b>Math:</b>
   * vector 2d
   * vector 3d
   * vector 4d
   * matrix 4x4
   * quaternion
+  * 2d mesh triangulation
   * transformation
   	* translate
   	* scale
@@ -84,6 +70,9 @@ fundamental components needed for game development.
   * simple binary archive
   * 3d model loading (custom gpu-friendly format)
   * automatic texture mipmap generation
+* <b>Engine:</b>
+  * Actor
+  * World
  
 ## Building
 
@@ -113,13 +102,13 @@ is copied into the application’s Resources directory.
 
 The solution is split into two projects: Tudo and Game.
 
-Tudo is a static library, while Game is the main project where the
+Tudo is a static library with all the systems, while Game is the main project where the
 game is built on top of it.
 
 ## Engine Design
 
 The engine is designed to be highly modular. You are responsible
-for implementing your own scene management and graphics pipeline.
+for implementing your own scene management and graphics pipeline (or build on top of the existing Actor/World system).
 Create a DrawPipeline interface and use the existing renderer
 classes (or implement your own) to draw primitives.
 

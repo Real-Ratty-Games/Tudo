@@ -15,16 +15,74 @@
 #include <bgfx/platform.h>
 #include <vector>
 
+#define TUDO_SAMPLER_U_MIRROR			BGFX_SAMPLER_U_MIRROR
+#define TUDO_SAMPLER_U_CLAMP			BGFX_SAMPLER_U_CLAMP
+#define TUDO_SAMPLER_U_BORDER			BGFX_SAMPLER_U_BORDER
+#define TUDO_SAMPLER_U_SHIFT			BGFX_SAMPLER_U_SHIFT
+#define TUDO_SAMPLER_U_MASK				BGFX_SAMPLER_U_MASK
+#define TUDO_SAMPLER_V_MIRROR			BGFX_SAMPLER_V_MIRROR
+#define TUDO_SAMPLER_V_CLAMP			BGFX_SAMPLER_V_CLAMP
+#define TUDO_SAMPLER_V_BORDER			BGFX_SAMPLER_V_BORDER
+#define TUDO_SAMPLER_V_SHIFT			BGFX_SAMPLER_V_SHIFT
+#define TUDO_SAMPLER_V_MASK				BGFX_SAMPLER_V_MASK
+#define TUDO_SAMPLER_W_MIRROR			BGFX_SAMPLER_W_MIRROR
+#define TUDO_SAMPLER_W_CLAMP			BGFX_SAMPLER_W_CLAMP
+#define TUDO_SAMPLER_W_BORDER			BGFX_SAMPLER_W_BORDER
+#define TUDO_SAMPLER_W_SHIFT			BGFX_SAMPLER_W_SHIFT
+#define TUDO_SAMPLER_W_MASK				BGFX_SAMPLER_W_MASK
+#define TUDO_SAMPLER_MIN_POINT			BGFX_SAMPLER_MIN_POINT
+#define TUDO_SAMPLER_MIN_ANISOTROPIC	BGFX_SAMPLER_MIN_ANISOTROPIC
+#define TUDO_SAMPLER_MIN_SHIFT			BGFX_SAMPLER_MIN_SHIFT
+#define TUDO_SAMPLER_MIN_MASK			BGFX_SAMPLER_MIN_MASK
+#define TUDO_SAMPLER_MAG_POINT			BGFX_SAMPLER_MAG_POINT
+#define TUDO_SAMPLER_MAG_ANISOTROPIC	BGFX_SAMPLER_MAG_ANISOTROPIC
+#define TUDO_SAMPLER_MAG_SHIFT			BGFX_SAMPLER_MAG_SHIFT
+#define TUDO_SAMPLER_MAG_MASK			BGFX_SAMPLER_MAG_MASK
+#define TUDO_SAMPLER_MIP_POINT			BGFX_SAMPLER_MIP_POINT
+#define TUDO_SAMPLER_MIP_SHIFT			BGFX_SAMPLER_MIP_SHIFT
+#define TUDO_SAMPLER_MIP_MASK			BGFX_SAMPLER_MIP_MASK
+#define TUDO_SAMPLER_COMPARE_LESS		BGFX_SAMPLER_COMPARE_LESS
+#define TUDO_SAMPLER_COMPARE_LEQUAL		BGFX_SAMPLER_COMPARE_LEQUAL
+#define TUDO_SAMPLER_COMPARE_EQUAL		BGFX_SAMPLER_COMPARE_EQUAL
+#define TUDO_SAMPLER_COMPARE_GEQUAL		BGFX_SAMPLER_COMPARE_GEQUAL
+#define TUDO_SAMPLER_COMPARE_GREATER	BGFX_SAMPLER_COMPARE_GREATER
+#define TUDO_SAMPLER_COMPARE_NOTEQUAL	BGFX_SAMPLER_COMPARE_NOTEQUAL
+#define TUDO_SAMPLER_COMPARE_NEVER		BGFX_SAMPLER_COMPARE_NEVER
+#define TUDO_SAMPLER_COMPARE_ALWAYS		BGFX_SAMPLER_COMPARE_ALWAYS
+#define TUDO_SAMPLER_COMPARE_SHIFT		BGFX_SAMPLER_COMPARE_SHIFT
+#define TUDO_SAMPLER_COMPARE_MASK		BGFX_SAMPLER_COMPARE_MASK
+#define TUDO_SAMPLER_BORDER_COLOR_SHIFT BGFX_SAMPLER_BORDER_COLOR_SHIFT
+#define TUDO_SAMPLER_BORDER_COLOR_MASK	BGFX_SAMPLER_BORDER_COLOR_MASK
+#define TUDO_SAMPLER_BORDER_COLOR(v)	BGFX_SAMPLER_BORDER_COLOR(v)
+#define TUDO_SAMPLER_RESERVED_SHIFT		BGFX_SAMPLER_RESERVED_SHIFT
+#define TUDO_SAMPLER_RESERVED_MASK		BGFX_SAMPLER_RESERVED_MASK
+#define TUDO_SAMPLER_NONE				BGFX_SAMPLER_NONE
+#define TUDO_SAMPLER_SAMPLE_STENCIL		BGFX_SAMPLER_SAMPLE_STENCIL
+#define TUDO_SAMPLER_POINT				BGFX_SAMPLER_POINT
+#define TUDO_SAMPLER_UVW_MIRROR			BGFX_SAMPLER_UVW_MIRROR
+#define TUDO_SAMPLER_UVW_CLAMP			BGFX_SAMPLER_UVW_CLAMP
+#define TUDO_SAMPLER_UVW_BORDER			BGFX_SAMPLER_UVW_BORDER
+#define TUDO_SAMPLER_BITS_MASK			BGFX_SAMPLER_BITS_MASK
+
 namespace Tudo
 {
 	class Sprite;
+	class Model3D;
 
-	enum class DrawAPI
+	enum class EDrawAPI
 	{
-		DIRECT3D11	= bgfx::RendererType::Direct3D11,
-		DIRECT3D12	= bgfx::RendererType::Direct3D12,
-		VULKAN		= bgfx::RendererType::Vulkan,
-        METAL       = bgfx::RendererType::Metal
+		DIRECT3D11	= bgfx::RendererType::Direct3D11,	// 2
+		DIRECT3D12	= bgfx::RendererType::Direct3D12,	// 3
+		VULKAN		= bgfx::RendererType::Vulkan,		// 9
+        METAL       = bgfx::RendererType::Metal			// 5
+	};
+
+	enum class EShaderUniformType
+	{
+		Sampler = bgfx::UniformType::Sampler,
+		Vec4	= bgfx::UniformType::Vec4,
+		Mat3	= bgfx::UniformType::Mat3,
+		Mat4	= bgfx::UniformType::Mat4
 	};
 
 	/// range: [0, 1]
@@ -90,6 +148,13 @@ namespace Tudo
 		int							MissedAmount; // Amount of instances not rendered due to hardware limitations
 	};
 
+	struct ModelInstanceData
+	{
+		Model3D*					pModel;
+		bgfx::InstanceDataBuffer	Buffer;
+		int							MissedAmount;
+	};
+
 	struct Viewport2D
 	{
 		vec2 Location;
@@ -106,12 +171,28 @@ namespace Tudo
 
 	struct TransformAtlas2D : public Transform2D
 	{
-		vec2	Index;
+		vec2 Index = vec2(0.0f);
+	};
 
-		TransformAtlas2D() : Transform2D()
-		{
-			Index		= vec2(0.0f);
-		}
+	struct ModelInstanceTransform
+	{
+		mat4 ModelMatrix;
+		vec4 IData;
+	};
+
+	struct BillboardTransform
+	{
+		vec3	Location	= vec3(0.0f);
+		vec2	Scale		= vec2(1.0f);
+		Color	ImageColor	= 0xffffffff;
+		bool	bCylindric	= false;
+		bool	bFlipU		= false;
+		bool	bFlipV		= false;
+	};
+
+	struct BillboardTransformAtlas : public BillboardTransform
+	{
+		vec2 Index = vec2(0.0f);
 	};
 
 	struct SpriteFont

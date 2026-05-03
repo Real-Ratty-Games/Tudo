@@ -18,11 +18,13 @@ namespace Tudo
 		Model3D(GraphicsDevice& gdevice);
 		~Model3D();
 		const std::vector<Mesh3D>& Meshes() const;
+		strg Name();
 
 		friend class AssetLoader;
 
 	private:
 		std::vector<Mesh3D>	mMeshes;
+		strg				mName;
 	};
 }
 #endif

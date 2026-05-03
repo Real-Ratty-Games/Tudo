@@ -10,16 +10,22 @@
 
 namespace Tudo
 {
+	class Window;
+
 	class Input
 	{
 	public:
 		bool KeyboardKeyDown(KeyboardKey key);
 		bool KeyboardKeyUp(KeyboardKey key);
 		bool KeyboardKeyPressed(KeyboardKey key);
+
 		bool MouseButtonDown(MouseButton button);
 		bool MouseButtonUp(MouseButton button);
 		bool MouseButtonPressed(MouseButton button);
 		vec2 MouseCursorLocation();
+		void SetRelativeMouseMode(Window& window, bool enabled);
+		void FlushRelativeMouseState();
+		vec2 MouseDelta();
 
 	private:
 		bool CheckKeyboardKey(int key);

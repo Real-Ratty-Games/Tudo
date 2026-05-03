@@ -3,6 +3,7 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "Input.hpp"
+#include "Window.hpp"
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_mouse.h>
 
@@ -62,6 +63,23 @@ vec2 Input::MouseCursorLocation()
 {
 	float x, y;
 	SDL_GetMouseState(&x, &y);
+	return vec2(x, y);
+}
+
+void Input::SetRelativeMouseMode(Window& window, bool enabled)
+{
+	SDL_SetWindowRelativeMouseMode(window.mWndHandle, enabled);
+}
+
+void Input::FlushRelativeMouseState()
+{
+	SDL_GetRelativeMouseState(nullptr, nullptr);
+}
+
+vec2 Input::MouseDelta()
+{
+	float x, y;
+	SDL_GetRelativeMouseState(&x, &y);
 	return vec2(x, y);
 }
 

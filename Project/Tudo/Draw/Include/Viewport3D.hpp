@@ -23,7 +23,7 @@ namespace Tudo
 
 	public:
 		float Fov;
-		float Near; // =-1000 for ortho
+		float Near;
 		float Far;
 
 		vec3 Eye;

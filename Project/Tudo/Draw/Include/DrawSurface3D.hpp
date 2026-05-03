@@ -5,7 +5,6 @@
 #ifndef DRAWSURFACE3D_HPP_
 #define DRAWSURFACE3D_HPP_
 #include "SystemTypes.hpp"
-#include "Memory.hpp"
 #include "DrawData.hpp"
 #include "DrawSurface.hpp"
 
@@ -18,14 +17,16 @@ namespace Tudo
 	{
 	public:
 		DrawSurface3D(GraphicsDevice& gdevice, uint16 viewid, vec2 size, void* wndHandle, bool depthOnly);
-		Texture* GetDepthTexture();
+		~DrawSurface3D();
+		Texture& GetDepthTexture();
 
 	protected:
+		void DestroyFB();
 		void UpdateFB(vec2i texSize, bgfx::TextureFormat::Enum format = bgfx::TextureFormat::RGBA8) override;
 
 	private:
-		SafePtr<Texture>	mFbDepthTex;
-		bool				bDepthOnly;
+		Texture*	mFbDepthTex;
+		bool		bDepthOnly;
 	};
 }
 #endif

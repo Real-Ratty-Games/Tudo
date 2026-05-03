@@ -3,7 +3,7 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "NetServerTCP.hpp"
-#include "BigError.hpp"
+#include "Logger.hpp"
 #include "Network.hpp"
 #include <algorithm>
 #include <ranges>
@@ -17,7 +17,7 @@ NetServerTCP::NetServerTCP(uint16 port, strgv ip)
 	NetServer::Initialize(port, ip);
     
     if (listen(mSocket, SOMAXCONN) == TUDO_NET_SOCKET_INVALID)
-		throw BigError("Failed to listen server: " + std::to_string(Network::GetError()));
+		Logger::Log("NetServerTCP::NetServerTCP", "Failed to listen server: " + std::to_string(Network::GetError()), ELogType::LERROR);
 }
 
 NetServerTCP::~NetServerTCP()

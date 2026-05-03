@@ -3,29 +3,35 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "DrawSurface3D.hpp"
+#include "Memory.hpp"
+#include "Logger.hpp"
 #include "GraphicsDevice.hpp"
 #include "Texture.hpp"
 
 using namespace Tudo;
 
-DrawSurface3D::DrawSurface3D(GraphicsDevice& gdevice, uint16 viewid, vec2 size, void* wndHandle, bool depthOnly) : DrawSurface(gdevice, viewid, size, wndHandle)
+DrawSurface3D::DrawSurface3D(GraphicsDevice& gdevice, uint16 viewid, vec2 size, void* wndHandle, bool depthOnly) : DrawSurface(gdevice, viewid, size, wndHandle),
+	bDepthOnly(depthOnly),
+	mFbDepthTex((viewid == 0) ? nullptr : new Texture(gdevice))
 {
-	bDepthOnly = depthOnly;
-
-	mFbDepthTex = new Texture(*pGDevice);
-
 	if (viewid != 0)
 	{
 		UpdateFB(size);
 		SetFBViewId();
 	}
 
-	bgfx::setViewMode(mViewId, bgfx::ViewMode::DepthDescending);
+	Logger::Log("New DrawSurface3D created!");
 }
 
-Texture* DrawSurface3D::GetDepthTexture()
+DrawSurface3D::~DrawSurface3D()
 {
-	return mFbDepthTex.Get();
+	if (mViewId != 0)
+		TUDO_MEM_FREE(mFbDepthTex);
+}
+
+Texture& DrawSurface3D::GetDepthTexture()
+{
+	return *mFbDepthTex;
 }
 
 void DrawSurface3D::UpdateFB(vec2i texSize, bgfx::TextureFormat::Enum format)
@@ -82,5 +88,15 @@ void DrawSurface3D::UpdateFB(vec2i texSize, bgfx::TextureFormat::Enum format)
 				mFbHandle = bgfx::createFrameBuffer((uint8)Memory::ArrayCount(fbtextures), fbtextures, true);
 			}
 		}
+	}
+}
+
+void DrawSurface3D::DestroyFB()
+{
+	if (bgfx::isValid(mFbHandle))
+	{
+		bgfx::destroy(mFbHandle);
+		mFbHandle.idx = bgfx::kInvalidHandle;
+		bgfx::setViewFrameBuffer(mViewId, BGFX_INVALID_HANDLE);
 	}
 }

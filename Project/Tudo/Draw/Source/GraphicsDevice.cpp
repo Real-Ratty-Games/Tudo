@@ -3,7 +3,7 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "GraphicsDevice.hpp"
-#include "BigError.hpp"
+#include "Logger.hpp"
 #include "Memory.hpp"
 #include "FileSystem.hpp"
 #include "Math.hpp"
@@ -23,7 +23,7 @@
 
 using namespace Tudo;
 
-GraphicsDevice::GraphicsDevice(Window& window, DrawAPI api, bool vsync)
+GraphicsDevice::GraphicsDevice(Window& window, EDrawAPI api, bool vsync)
 {
 	mQuad2DVB = BGFX_INVALID_HANDLE;
 
@@ -37,7 +37,7 @@ GraphicsDevice::GraphicsDevice(Window& window, DrawAPI api, bool vsync)
 	init.type = (bgfx::RendererType::Enum)api;
 
 	if (!bgfx::init(init))
-		throw BigError("Failed intializing bgfx!");
+		Logger::Log("GraphicsDevice::GraphicsDevice", "Failed intializing bgfx!", ELogType::LERROR);
 
 #if _DEBUG
 	bgfx::setDebug(BGFX_DEBUG_TEXT);
@@ -49,12 +49,17 @@ GraphicsDevice::GraphicsDevice(Window& window, DrawAPI api, bool vsync)
 
 	Init2DQuad();
 	InitMesh3DVBLayout();
+
+	Logger::Log("GraphicsDevice successfully initialized!");
+	LogGPUInfo();
 }
 
 GraphicsDevice::~GraphicsDevice()
 {
 	Release2DQuad();
+	ReleaseShaderUniforms();
 	bgfx::shutdown();
+	Logger::Log("GraphicsDevice released!");
 }
 
 void GraphicsDevice::BeginDraw()
@@ -88,11 +93,9 @@ void GraphicsDevice::Printf(vec2i location, uint8 attr, strgv text)
 #endif
 }
 
-// bgfx::setViewClear(viewid, flags, color.ToInt(), 1.0f, 0);
-
-void GraphicsDevice::DrawTexture(Shader& shader, const DrawSurface& surface, vec2 rotpiv, vec2 size, const Transform2D& transformation)
+void GraphicsDevice::DrawTexture(Shader& shader, const DrawSurface& surface, vec2 rotpiv, vec2 size, const Transform2D& transform)
 {
-	vec2 rscale = size * transformation.Scale;
+	vec2 rscale = size * transform.Scale;
 
 	vec3 rotPiv = vec3(
 		rotpiv.X * rscale.X,
@@ -101,17 +104,17 @@ void GraphicsDevice::DrawTexture(Shader& shader, const DrawSurface& surface, vec
 	);
 
 	mat4 mdl = mat4::Identity();
-	mdl = Math::Translate(mdl, vec3(transformation.Location.X, transformation.Location.Y, 0.0f), false);		// move to world pos
+	mdl = Math::Translate(mdl, vec3(transform.Location.X, transform.Location.Y, 0.0f), false);		// move to world pos
 	mdl = Math::Translate(mdl, rotPiv, false);																	// mov pivot to origin
-	mdl = Math::Rotate(mdl, vec3(0.0f, 0.0f, 1.0f), Math::ToRadians(transformation.Rotation), false);			// rotate
+	mdl = Math::Rotate(mdl, vec3(0.0f, 0.0f, 1.0f), Math::ToRadians(transform.Rotation), false);			// rotate
 	mdl = Math::Translate(mdl, -rotPiv, false);																	// move pivot back
 	mdl = Math::Scale(mdl, vec3(rscale.X, rscale.Y, 1.0f), false);												// scale
 
 	bgfx::setTransform(mdl.Ptr());
 	bgfx::setState(TUDO_RENDERER_SPRITE_STATE);
 
-	vec4 ucolor = vec4(transformation.ImageColor.R, transformation.ImageColor.G, transformation.ImageColor.B, transformation.ImageColor.A);
-	shader.SetUniform("color", ucolor.Ptr());
+	vec4 ucolor = transform.ImageColor.ToVec();
+	SetShaderUniform("u_color", ucolor.Ptr());
 
 	shader.Submit(surface.ViewID(), TUDO_RENDERER_SPRITE_FLAGS, true);
 }
@@ -120,11 +123,6 @@ void GraphicsDevice::SetMesh(uint8 stream, const Mesh3D& mesh)
 {
 	bgfx::setVertexBuffer(stream, mesh.VBH);
 	bgfx::setIndexBuffer(mesh.IBH);
-}
-
-void GraphicsDevice::SetModelTransform(const mat4& mat)
-{
-	bgfx::setTransform(mat.Ptr());
 }
 
 bgfx::VertexBufferHandle GraphicsDevice::CreateVertexBuffer(const void* data, uint size, const bgfx::VertexLayout& layout)
@@ -150,6 +148,44 @@ const mat4& GraphicsDevice::GetQuad2DView()
 bgfx::VertexLayout& GraphicsDevice::GetMeshVertexLayout()
 {
 	return mMesh3DVBLayout;
+}
+
+void GraphicsDevice::InitShaderUniform(strgv name, EShaderUniformType type, uint16 nmb)
+{
+	const char* nm = name.data();
+	if (!mShaderUniforms.contains(nm))
+		mShaderUniforms[nm] = bgfx::createUniform(nm, (bgfx::UniformType::Enum)type, nmb);
+}
+
+void GraphicsDevice::SetShaderUniform(strgv name, const void* vl, uint16 nmb)
+{
+	const char* nm = name.data();
+	if (mShaderUniforms.contains(nm))
+		bgfx::setUniform(mShaderUniforms[nm], vl, nmb);
+}
+
+void GraphicsDevice::SetShaderTexture(uint8 stage, strgv name, Texture& texture)
+{
+	const char* nm = name.data();
+	if (mShaderUniforms.contains(nm))
+		bgfx::setTexture(stage, mShaderUniforms[nm], texture.Handle());
+}
+
+bgfx::UniformHandle* GraphicsDevice::GetShaderUniform(strgv name)
+{
+	if (mShaderUniforms.contains(name.data()))
+		return &mShaderUniforms[name.data()];
+	else return nullptr;
+}
+
+void GraphicsDevice::ReleaseShaderUniforms()
+{
+	for (auto& it : mShaderUniforms)
+	{
+		if (bgfx::isValid(it.second))
+			bgfx::destroy(it.second);
+	}
+	mShaderUniforms.clear();
 }
 
 void GraphicsDevice::Init2DQuad()
@@ -190,4 +226,25 @@ void GraphicsDevice::InitMesh3DVBLayout()
 	mMesh3DVBLayout.begin()
 		TUDO_RENDERER_M3D_VERTEXLAYOUT
 		.end();
+}
+
+void GraphicsDevice::LogGPUInfo()
+{
+	const bgfx::Caps* caps = GetGPUInfo();
+
+	strg dn = "Unknown";
+	switch (caps->vendorId)
+	{
+	case BGFX_PCI_ID_NVIDIA:				dn = "Nvidia"; break;
+	case BGFX_PCI_ID_AMD:					dn = "AMD"; break;
+	case BGFX_PCI_ID_INTEL:					dn = "Intel"; break;
+	case BGFX_PCI_ID_SOFTWARE_RASTERIZER:	dn = "Software rasterizer"; break;
+	case BGFX_PCI_ID_APPLE:					dn = "Apple"; break;
+	case BGFX_PCI_ID_MICROSOFT:				dn = "Microsoft"; break;
+	case BGFX_PCI_ID_ARM:					dn = "ARM"; break;
+	}
+
+	Logger::Log("GPU device is " + dn);
+	Logger::Log("GPU device Id '" + std::to_string(caps->deviceId) + "'");
+	Logger::Log("GPU count '" + std::to_string(caps->numGPUs) + "'");
 }

@@ -3,11 +3,17 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "WindowCursor.hpp"
-#include "BigError.hpp"
+#include "Logger.hpp"
 
 using namespace Tudo;
 
 WindowCursor::~WindowCursor()
 {
 	SDL_DestroyCursor(mCursor);
+	Logger::Log("WindowCursor '" + mName + "' released!");
+}
+
+strg WindowCursor::Name()
+{
+	return mName;
 }

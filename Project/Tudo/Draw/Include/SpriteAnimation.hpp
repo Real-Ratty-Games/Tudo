@@ -21,12 +21,12 @@ namespace Tudo
 	/// Sprite animation properties
 	struct SpriteAnimation
 	{
-		vec2					FrameSize;
-		vec2					StartIndex;
-		int64					Speed;				// in frames per second
-		int						RowCount;			// how many frames in one row
-		int						TotalFrameCount;	// how many frames in total
-		ESpriteAnimationStyle	Style = ESpriteAnimationStyle::NONE;
+		vec2					FrameSize		= 64;
+		vec2					StartIndex		= 0;
+		int64					Speed			= 60;		// in frames per second
+		int						RowCount		= 1;		// how many frames in one row
+		int						TotalFrameCount = 1;		// how many frames in total
+		ESpriteAnimationStyle	Style			= ESpriteAnimationStyle::NONE;
 	};
 
 	/// Manages sprite animation

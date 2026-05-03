@@ -57,7 +57,7 @@ void WADMaker::Make(strgv inpath, strgv outloc, bool saveExt)
 
 	uint currentOffset = sizeof(fileCnt);
 
-	for (uint i = 0; i < fileCnt; ++i)
+	for (uint i = 0; i < fileCnt; i++)
 	{
 		currentOffset += sizeof(uint16);
 		currentOffset += static_cast<uint>(filenames[i].size());
@@ -66,7 +66,7 @@ void WADMaker::Make(strgv inpath, strgv outloc, bool saveExt)
 		currentOffset += sizeof(uint8);
 	}
 
-	for (uint i = 0; i < fileCnt; ++i)
+	for (uint i = 0; i < fileCnt; i++)
 	{
 		uint16 nameLength = static_cast<uint>(filenames[i].size());
 		uint fileSize = static_cast<uint>(data[i].size());

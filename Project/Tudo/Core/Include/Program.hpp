@@ -11,8 +11,12 @@ namespace Tudo
 	class Program
 	{
 	public:
+		Program();
 		void Run();
 		void Quit(bool vl = true);
+
+	private:
+		void Startup();
 
 	protected:
 		virtual bool Initialize() = 0;
@@ -21,7 +25,7 @@ namespace Tudo
 		virtual void Cleanup() = 0;
 
 	private:
-		bool bQuit = false;
+		bool bQuit;
 	};
 }
 #endif

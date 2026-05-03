@@ -7,6 +7,8 @@
 #include "SystemTypes.hpp"
 #include <vector>
 
+#define TUDO_VERSION	100
+
 #define M3DC_VERSION	100
 #define M3DC_MAGIC		0x156AF
 

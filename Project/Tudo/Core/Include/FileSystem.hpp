@@ -23,6 +23,7 @@ namespace Tudo::FileSystem
 	std::vector<char>		ReadBinaryFile(strgv filepath);
 	void					WriteBinaryFile(strgv filepath, const std::vector<char>& data);
 	void					WriteTextFile(strgv filepath, strgv text);
+	void					StripStringExt(strg& text);
 
 	std::filesystem::path	GetResourcePath(strgv filename);
 }

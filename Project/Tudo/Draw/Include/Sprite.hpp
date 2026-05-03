@@ -17,14 +17,14 @@ namespace Tudo
 	public:
 		Sprite(Texture& texture);
 		void SetTexture(Texture& texture);
-		Texture* GetTexture() const;
+		Texture& GetTexture();
 
 	public:
-		vec2		RotationPivot;
-		vec2		Size;
+		vec2				RotationPivot;
+		vec2				Size;
 
 	private:
-		Texture*	pTexture;
+		Texture* pTexture;
 	};
 }
 #endif

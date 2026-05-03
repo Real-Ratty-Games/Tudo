@@ -3,7 +3,7 @@
 	Created by Norbert Gerberg.
 ======================================================*/
 #include "NetServer.hpp"
-#include "BigError.hpp"
+#include "Logger.hpp"
 #include "Network.hpp"
 
 using namespace Tudo;
@@ -14,7 +14,7 @@ void NetServer::Initialize(uint16 port, strgv ip)
 	mIP		= ip;
 
     if (mSocket == TUDO_NET_SOCKET_INVALID)
-		throw BigError("Failed creating server socket: " + std::to_string(Network::GetError()));
+		Logger::Log("NetServer::Initialize", "Failed creating server socket: " + std::to_string(Network::GetError()), ELogType::LERROR);
     
     Network::SetSocketNB(mSocket);
     
@@ -24,6 +24,8 @@ void NetServer::Initialize(uint16 port, strgv ip)
     
     Network::Pton(service, ip);
 
-    if (bind(mSocket, (NetSockaddr*)&service, sizeof(service)) == TUDO_NET_SOCKET_INVALID)
-		throw BigError("Failed binding server: " + std::to_string(Network::GetError()));
+	if (bind(mSocket, (NetSockaddr*)&service, sizeof(service)) == TUDO_NET_SOCKET_INVALID)
+		Logger::Log("NetServer::Initialize", "Failed binding server: " + std::to_string(Network::GetError()), ELogType::LERROR);
+
+	Logger::Log("NetServer successfully initialized!");
 }

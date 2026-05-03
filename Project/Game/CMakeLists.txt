@@ -1,4 +1,5 @@
-file(GLOB_RECURSE SOURCES "Source/*.cpp" "Include/*.hpp")
+file(GLOB_RECURSE SOURCES "Engine/Source/*.cpp" "Engine/Include/*.hpp"
+"Game/Source/*.cpp" "Game/Include/*.hpp")
 
 if (WIN32)
     add_executable (Game ${SOURCES})
@@ -7,6 +8,23 @@ if (WIN32)
 else()
     add_executable(Game MACOSX_BUNDLE ${SOURCES})
 endif()
+
+file(GLOB ENGINEFILES_HEADER "Engine/Include/*.hpp")
+source_group("Engine/Inc/" FILES ${ENGINEFILES_HEADER})
+
+file(GLOB ENGINEFILES_SOURCE "Engine/Source/*.cpp")
+source_group("Engine/Src" FILES ${ENGINEFILES_SOURCE})
+
+file(GLOB GAMEFILES_HEADER "Game/Include/*.hpp")
+source_group("Game/Inc/" FILES ${GAMEFILES_HEADER})
+
+file(GLOB GAMEFILES_SOURCE "Game/Source/*.cpp")
+source_group("Game/Src" FILES ${GAMEFILES_SOURCE})
+
+target_include_directories(Game PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Game/Include> $<INSTALL_INTERFACE:Game>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Engine/Include> $<INSTALL_INTERFACE:Engine>
+)
 
 # Thirdparty
 target_link_libraries(Game PRIVATE SoLoud::SoLoud)
